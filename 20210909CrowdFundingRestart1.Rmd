@@ -93,8 +93,8 @@ c1<-mutate(c1, disease=(grepl("disease",c1$Blurb,1,0)+0))
 c1<-mutate(c1, together=(grepl("together",c1$Blurb,1,0)+0))
 c1<-mutate(c1, every=(grepl("every",c1$Blurb,1,0)+0))
 c1<-mutate(c1, story=(grepl("story",c1$Blurb,1,0)+0))
-c1<-mutate(c1, mom=(grepl("mom",c1$Blurb,1,0)+0))
-c1<-mutate(c1, ma=(grepl("ma",c1$Blurb,1,0)+0))
+c1<-mutate(c1, mom=(grepl("mom ",c1$Blurb,1,0)+0))
+#c1<-mutate(c1, ma=(grepl("ma ",c1$Blurb,1,0)+0)) "MA " or not because ma could lead to master and other words also
 c1<-mutate(c1, save=(grepl("save",c1$Blurb,1,0)+0))
 
 #This adds them up so now we have one column that checks for senty words ##This is in case we can classify senty words.
@@ -229,7 +229,7 @@ stargazer(select(c1,Name, Blurb, Launched_At, Deadline, State, Goal, Pledged, Pe
 
 We look at the month in which the project is launched and the relevant impact it has on the probability of success of the project.
 
-```{r monthwise1, echo=FALSE, fig.height=5.5, fig.width=4, message=FALSE, warning=FALSE}
+```{r monthwise1, echo=FALSE, message=FALSE, warning=FALSE}
 library(ggplot2)
 
 monthplot1<-c1%>%group_by(month,success)%>%summarise(count=length(month))
@@ -245,7 +245,7 @@ print(plot1)
 
 ```
 
-```{r monthprop1, echo=FALSE, fig.height=5.5, fig.width=4, message=FALSE, warning=FALSE}
+```{r monthprop1, echo=FALSE, message=FALSE, warning=FALSE}
 
 monthplot2<-merge(monthplot,filter(monthplot1,success==0),by="month")
 monthplot2$prop<-monthplot2$count.x/monthplot2$count.y
@@ -264,7 +264,7 @@ Figure \@ref(fig:monthwise1) might be slightly misleading as our data is not eve
 We would be better off looking at the proportion of success to failure.
 In Figure \@ref(fig:monthprop1) we see the proportion of success to failure for each month.
 Month 2 to Month 6 are in the top 5.
-While more than 97 percent projects launched in march are successful, only 59 percent projects are successful in September.
+While the ratio of successful to unsuccessful projects is more than 97 percent for projects launched in march are successful, it is 59 percent projects are successful in September.
 
 Similar to months, we do this exercise for days.
 \footnote{Friday Effect}.
@@ -291,21 +291,38 @@ In Figure \@ref(fig:daywise1) we plot the proportion of successful to unsuccessf
 We see that the propotion of success is higher on Sunday as compared to other days of the week, especially Monday.
 We do not see any 'Friday Effect' in this.
 
-```{r Readability1, message=FALSE, warning=FALSE}
-library(quanteda)
+```{r categorywise1, echo=FALSE, message=FALSE, warning=FALSE}
+catplot1<-c1%>%group_by(Super_Category,success)%>%summarise(count=length(Super_Category))
+catplot<-filter(catplot1,success==1)
+catplot2<-merge(catplot,filter(catplot1,success==0),by="Super_Category")
+catplot2$prop<-catplot2$count.x/catplot2$count.y
+catplot2<-catplot2[order(catplot2$prop,decreasing=TRUE),]
+catplot2<-as.data.frame(catplot2)
+plot4<-ggplot(catplot2, aes(x=reorder(Super_Category,-prop), y=prop ))
+plot4<- plot4+ geom_bar(stat = "identity", color="blue", fill="light blue") +
+  xlab("Category") + ylab("Proportion of Successful to Unsuccessful") + # Set axis labels
+  ggtitle("Proportion of Successful to Unsuccessful Projects by Category") + theme(legend.position="top") #+ #
+print(plot4)
+
+
+```
+
+
+```{r Readability1, message=FALSE, warning=FALSE, include=FALSE}
+# library(quanteda) #Some issue with RCPP
 
 library(survival)
 library(koRpus)
-
+#koRpus::install.koRpus.lang("en")
+(library(koRpus.lang.en))
 ##This is the word wizardry
 set.kRp.env(lang="en")
 #get.kRp.env(TT.cmd=TRUE)
-koRpus::install.koRpus.lang("en")
-(library(koRpus.lang.en))
+
 #dalelist <- read.csv("C:/Users/preet.singh/Downloads/dalelist.txt", sep="")
 #spachelist <- read.table("C:/Users/preet.singh/Downloads/spachelist.txt", sep="", quote="\"", comment.char="")
- some.text<-tokenize(c1$Blurb[2], format = "obj", lang = "kRp.env") ###This is testing  This works after specifying language.
-  scores<-str(readability(some.text))
+some.text<-tokenize(c1$Blurb[2], format = "obj", lang = "kRp.env") ###This is testing  This works after specifying language.
+scores<-str(readability(some.text))
 ```
 
 
@@ -339,31 +356,62 @@ We use words such as mother, baby, kids, environment, dream, amputee, accident, 
 The dependent variable is coded as 1, in case the project is successful and 0 in case the project is not successful.
 Because of the binary nature of the variable, we use the following logit model:
 
-```{r wordcorrelation, message=FALSE, warning=FALSE}
-cor.test(c1$ma,c1$success)#PRetty Cool
-cor.test(c1$mom,c1$success)#Negative Correlation
-cor.test(c1$mother,c1$success)#No Correlation
-cor.test(c1$cancer,c1$success)#Negative Correlation
-cor.test(c1$kids,c1$success)#
+
+We use a definition of 125% for overachievement.
+```{r wordcorrelation, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+
 #c1<-mutate(c1, save=(grepl("save",c1$Blurb,1,0)+0)) #ost of the words are fun
 c1<-mutate(c1, cancer=(grepl("cancer",c1$Blurb,1,0)+0))
+c1<-mutate(c1, fear=(grepl("fear",c1$Blurb,1,0)+0))
+c1<-mutate(c1, overcome=(grepl("overcome",c1$Blurb,1,0)+0))
+c1<-mutate(c1, support=(grepl("support",c1$Blurb,1,0)+0))
+c1<-mutate(c1, shit=(grepl("shit",c1$Blurb,1,0)+0))
+c1<-mutate(c1, therapy=(grepl("therapy",c1$Blurb,1,0)+0))
+c1<-mutate(c1, support=(grepl("support",c1$Blurb,1,0)+0))##EDIT THESE
+c1<-mutate(c1,over=ifelse(c1$Percentage_Funded>125,1,0)) ##This is a definition we are using
+c1<-mutate(c1, support=(grepl("support",c1$Blurb,1,0)+0))
+c1<-mutate(c1, always=(grepl("always",c1$Blurb,1,0)+0))
+c1<-mutate(c1, never=(grepl("never",c1$Blurb,1,0)+0))
+c1<-mutate(c1, forgive=(grepl("forgive",c1$Blurb,1,0)+0))
+c1<-mutate(c1, please=(grepl("please",c1$Blurb,1,0)+0))
+c1<-mutate(c1, thank=(grepl("thank",c1$Blurb,1,0)+0))
+c1<-mutate(c1, father=(grepl("father",c1$Blurb,1,0)+0))
+c1<-mutate(c1, dad=(grepl("dad ",c1$Blurb,1,0)+0))
+c1<-mutate(c1, papa=(grepl("papa",c1$Blurb,1,0)+0))
+c1<-mutate(c1, children=(grepl("children",c1$Blurb,1,0)+0))
+c1<-mutate(c1, dear=(grepl("dear",c1$Blurb,1,0)+0))
+c1<-mutate(c1, est=(grepl("est ",c1$Blurb,1,0)+0))
+c1<-mutate(c1, worst=(grepl("worst",c1$Blurb,1,0)+0))
+c1<-mutate(c1, best=(grepl("best ",c1$Blurb,1,0)+0))
+c1<-mutate(c1, prevent=(grepl("prevent",c1$Blurb,1,0)+0))
+
+
+
 c2<-c1[,24:ncol(c1)]
 c2<-select(c2,-month)
 c2<-select(c2,-day)
 c2<-select(c2,-totalduration)
-cor(c2,method = "pearson", use = "complete.obs") ##,use = "complete.obs"), method = c("pearson", "kendall", "spearman"))
+#cor(c2,method = "pearson", use = "complete.obs") ##,use = "complete.obs"), method = c("pearson", "kendall", "spearman"))
 
-install.packages("PerformanceAnalytics")
-library("PerformanceAnalytics")
-chart.Correlation(c2, histogram=TRUE, pch=19)
+#install.packages("PerformanceAnalytics")
+#library("PerformanceAnalytics")
+#chart.Correlation(c2, histogram=TRUE, pch=19)
 
 library("Hmisc")
 res2 <- rcorr(as.matrix(c2))
 SignificanRelations<-res2$P[1,] ###This is the one that is actually fun.
-SignificanRelations<-as.data.frame(t(SignificanRelations))
+SignificanRelations<-as.data.frame(SignificanRelations)
 colnames(SignificanRelations)<-"pValue of Correlation"
+## Maybe add correlations in the same table. Life will be a lot easier. 
 
-stargazer(SignificanRelations,summary = FALSE)
+Correlations<-res2$r[1,] ###This is the one that is actually fun.
+Correlations<-as.data.frame(Correlations)
+colnames(Correlations)<-"Coefficient of Correlation"
+cortable<-cbind(Correlations,SignificanRelations)
+cortable<-round(cortable,2)
+
+
+stargazer(cortable,summary = FALSE, title =  "This tables shows the coefficient of correlation and p value, between projects that used the particular word and their success.",label = "CorrelationTable",header = FALSE)
 ```
 
 
@@ -425,7 +473,13 @@ Change and all A general time control or something
 -   Difference between March and October is very high, in terms of proportion of projects successful to unsuccessful.
 -   Sunday is very high as compared to Monday.
 
-```{=tex}
-\newpage
-\section*{Bibliography}
-```
+Correlation
+-   Mother/Mom: no, Ma: yes, but Ma has a mildly positive effect
+-   Dad/Pap: no, Father: yes but mildly positive
+-   Thank/Please: Positive
+-   Baby/Poor/Dream/Child/Kids/every/save/cancer: negative
+-   Love/student/together/story/fear/support: positive
+-   Superlatives (est) help (Positive)
+-   Best and Prevent: Negative
+-   Worst: not significant
+

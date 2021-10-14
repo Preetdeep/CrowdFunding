@@ -1,5 +1,5 @@
 ---
-title: "Perception of Founders' Age in Startups"
+title: "Emotional Crowdfunding Blurbs Lead to Success (of the campaign at least)"
 author: "Dr Preet Deep Singh"
 affiliation: "Invest India"
 date: "09/09/2021"
@@ -9,93 +9,423 @@ output:
     citation_package: natbib
     number_sections: yes
     keep_tex: yes
-abstract: "Using a dataset of 150011 projects from Kickstarter, we analyse various factors that influence success of a campaign. Results show that goal amount, use of specific words in the blurb, category of project, and duration of the project are statistically significant. We also use readability tests to show that the more the readability of description more the probability of success. Our paper has prescriptive relevance for practitioners "
+abstract: "Using a dataset of 150,011 projects from Kickstarter, we analyse factors that influence the success of a campaign. Results show that goal amount, use of specific words in the blurb, category of project, and duration of the project are statistically significant. We also use readability tests to show that the more the readability of description more the probability of success. Our paper has prescriptive relevance for practitioners "
 documentclass: "article"
 editor_options: 
   chunk_output_type: console
+  markdown: 
+    wrap: sentence
 bibliography: references.bib
 link-citations: true
 csl: apa.csl
 ---
 
+```{r setup, message=TRUE, warning=TRUE, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+library(tidyverse)
+library(ARTofR)
+library(survival)
+library(ggplot2)
+library(dplyr)
+library(stargazer)
+xxx_box1("Questions that can be answered")
+
+#...............................................................................
+#                                                                              .
+#  Questions that can be answered                                              .
+# 1. Summary: how many successful, how many over, how many rising
+# 2. Impact of readability on Success/ More/ Rising
+# 3. Impact of presence of words on Success/ More/ Rising
+#...............................................................................
+
+xxx_title1("Opening")
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##                                                                            ~~
+##                                  OPENING                                 ----
+##                                                                            ~~
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+projects <- read_csv("20151208ProjectsCleaned.csv")
+prepared <- read_csv("20151215prepared.csv")
+
+xxx_divider1("Copied from Older")
+#........................Copied from Older.......................
+pr<-prepared
+pr<-mutate(pr, success=((State=="successful")+0)) ##This is a damn cool way of converting something into a number
+
+#OKay, so we set it as date ##Nothing much happening in this, just to put it as a date, we can look at how it impacts things later.
+pr$Became_Overachiever_At<-as.Date(pr$Became_Overachiever_At)
+pr$Became_Rising_Star_At<-as.Date(pr$Became_Rising_Star_At)
+pr$Became_Underdog_At<-as.Date(pr$Became_Underdog_At)
+pr$Created_At<-as.Date(pr$Created_At)
+pr$Launched_At<-as.Date(pr$Launched_At)
+pr$Deadline<-as.Date(pr$Deadline)
+#We add one more column for total duration for which this project was open. ## WE should see what all questions we want answered from this
+pr<-mutate(pr, totalduration=Deadline-Launched_At)
+
+
+#Assign for working
+c1<-pr
+c1$Super_Category<-as.factor(c1$Super_Category)
+c1$Currency<-as.factor(c1$Currency)
+c1$Percentage_Funded<-as.numeric(gsub("%","",c1$Percentage_Funded))
+c1<-subset(c1,c1$Backers_Count>0) # We are removing projects that dont have a single backer, which means it either never went live or there was a different issue.
+## This leads to sample going down to 150011
+
+xxx_title2("Fun Bit")
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##                                   Fun Bit                                ----
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#Check for senty words
+c1<-mutate(c1, baby=(grepl("baby",c1$Blurb,1,0)+0))
+c1<-mutate(c1, mother=(grepl("mother",c1$Blurb,1,0)+0))
+c1<-mutate(c1, poor=(grepl("poor",c1$Blurb,1,0)+0))
+c1<-mutate(c1, love=(grepl("love",c1$Blurb,1,0)+0))
+c1<-mutate(c1, enviro=(grepl("environment",c1$Blurb,1,0)+0))
+c1<-mutate(c1, student=(grepl("student",c1$Blurb,1,0)+0))
+c1<-mutate(c1, amputee=(grepl("amputee",c1$Blurb,1,0)+0))
+c1<-mutate(c1, dream=(grepl("dream",c1$Blurb,1,0)+0))
+c1<-mutate(c1, lost=(grepl("lost",c1$Blurb,1,0)+0))
+c1<-mutate(c1, child=(grepl("child",c1$Blurb,1,0)+0))
+c1<-mutate(c1, kids=(grepl("kids",c1$Blurb,1,0)+0))
+c1<-mutate(c1, disease=(grepl("disease",c1$Blurb,1,0)+0))
+c1<-mutate(c1, together=(grepl("together",c1$Blurb,1,0)+0))
+c1<-mutate(c1, every=(grepl("every",c1$Blurb,1,0)+0))
+c1<-mutate(c1, story=(grepl("story",c1$Blurb,1,0)+0))
+c1<-mutate(c1, mom=(grepl("mom",c1$Blurb,1,0)+0))
+c1<-mutate(c1, ma=(grepl("ma",c1$Blurb,1,0)+0))
+c1<-mutate(c1, save=(grepl("save",c1$Blurb,1,0)+0))
+
+#This adds them up so now we have one column that checks for senty words ##This is in case we can classify senty words.
+c1<-mutate(c1,sum1=student+story+lost+save)
+c1<-mutate(c1,sum2=every+poor+dream+love)
+c1<-mutate(c1,sum3=kids+child+mother+baby)
+
+
+c1<-mutate(c1,lngoal=log(Goal))
+c1<-mutate(c1,more=(Percentage_Funded>100)+0)
+#Now regress those things
+
+c1<-mutate(c1,month=format(c1$Launched_At,"%b"))
+c1$month<-as.factor(c1$month) #We will have to remove launched at
+
+c1<-select(c1,-Main_Category.y) ##This is for later
+c1<-as.data.frame(c1) ##This is to ensure that this is not a tibble. Leads to problems later.
+
+```
+
 \section{Introduction}
 
-While traditional finance theories such as pecking order theory, predict that firms would raise debt before equity <Check Once>, the new era of companies based on new market segments and product offerings that cannot be compared to those existing, has led to a new paradigm of looking at risk and its distribution. While over 80\% of startups fail \footnote{CITE}, crowd-funding is changing the way risky enterprises are being financed. 
+While traditional finance theories such as pecking order theory, predict that firms would raise debt before equity <Check Once>, the new era of companies based on new market segments and product offerings that cannot be compared to those existing, has led to a new paradigm of looking at risk and its distribution.
+While over 80% of startups fail \footnote{CITE}, crowd-funding is changing the way risky enterprises are being financed.
+Through this study we set out to examine a few basic questions:
 
+-   Summary: how many successful, how many over, how many rising
+
+-   Impact of readability on Total funds raised
+
+-   Impact of certain words on the total funds raised
+
+We use success, overfunding, and take taken to fulfill the objective of the campaign to measure the impact of our variables of interest.
+
+```{=tex}
 \subsection{About Crowdfunding}
 \subsubsection{Previously}
-
-4 types of crowd funding - Reward, Debt, Equity, Donation. In India SEBI has not allowed investors to go the equity route to invest in starups. This is because of the inherent problems in inviting public to subscribe to the shares of the company <Cite Companies Act>. Donations, if made to registered entities under section 80 (Whatever subsection) of the Income Tax Act, 1961, are exempt from income tax. Therefore if the organisation raising funds is an entity covered under the relevant sections of the Act, then the investor (donor in this case) can get a tax exemption on the money so donated. Under the reward base, the investor is promised the product. Thus this method works as a pre-order facility. While the company is assured of a minimum sale and gets cash to keep it going, the investor gets a right to get his/her hands on a product before it hits the market. <<You can cite some of many examples available here>. Debt based model is difficult to execute on a platform only mode and therefore requires more interaction between the organisation and the the creditor. However debt is an important part of funding and risk disbursement.
+```
+4 types of crowd funding - Reward, Debt, Equity, Donation.
+In India SEBI has not allowed investors to go the equity route to invest in startups.
+This is because of the inherent problems in inviting public to subscribe to the shares of the company <Cite Companies Act>.
+Donations, if made to registered entities under section 80 (Whatever subsection) of the Income Tax Act, 1961, are exempt from income tax.
+Therefore if the organisation raising funds is an entity covered under the relevant sections of the Act, then the investor (donor in this case) can get a tax exemption on the money so donated.
+Under the reward base, the investor is promised the product.
+Thus this method works as a pre-order facility.
+While the company is assured of a minimum sale and gets cash to keep it going, the investor gets a right to get his/her hands on a product before it hits the market.
+\<<You can cite some of many examples available here>.
+Debt based model is difficult to execute on a platform only mode and therefore requires more interaction between the organisation and the the creditor.
+However debt is an important part of funding and risk disbursement.
 
 \subsection{About Kickstarter}
-What it is, when it was founded, how much money has it already disbursed. This will come from the Datastats that it itself
-shows.
 
+What it is, when it was founded, how much money has it already disbursed.
+This will come from the Data stats that it itself shows.
 
 \subsection{About the study}
-In this paper we look at 150011 projects on Kickstarter from April, 2009 to November, 2015. Our sample includes failed, cancelled, suspended and successful projects. <Some Literature Here>. While efficient market hypothesis and familiarity bias would predict that people prefer to invest in projects that are in the same category as that of existing Unicorns \footnote{<Say Something>}; crowd-funding does not have any equity component and follows a donation or a customer based model. Under a donation model, the people who fund projects get nothing in return. Under the customer based model the people who contribute get the product or another gift depending upon the amount they have contributed. The gift is of much less worth than the contribution. Therefore, there is an emotional and altruistic angle to the whole process. We hypothesize that projects that appeal to emotion would receive more funding than those which do not. We check this by looking at the use of words that evoke emotion. Because of the presence of multiple people we cannot rule out herding. This could be owing to better information or conformation to the norms <CITE SOMETHING>. However, herding would have to be explained differently because it is in a donation/gift setting. Crowd-funding is a social network and previous record of entrepreneurs is a key determinant in the success of their projects<Cite>. There is also a strong element of reciprocity. If one entrepreneur contributes to another persons project, his/her own project is more likely to get funded<Cite>. Reciprocity alone cannot explain all results as it is less likely that every contributor is an entrepreneur looking to raise funds. Our results indicate that certain words such as mother, son, love, dream, student have an effect on the success, plausibly because they appeal to an emotion or to pity.
+
+In this paper we look at 150011 projects on Kickstarter from April, 2009 to November, 2015.
+Our sample includes failed, cancelled, suspended and successful projects.
+<Some Literature Here>.
+While efficient market hypothesis and familiarity bias would predict that people prefer to invest in projects that are in the same category as that of existing Unicorns \footnote{<Say Something>}; crowd-funding does not have any equity component and follows a donation or a customer based model.
+Under a donation model, the people who fund projects get nothing in return.
+Under the customer based model the people who contribute get the product or another gift depending upon the amount they have contributed.
+The gift is of much less worth than the contribution.
+Therefore, there is an emotional and altruistic angle to the whole process.
+We hypothesize that projects that appeal to emotion would receive more funding than those which do not.
+We check this by looking at the use of words that evoke emotion.
+Because of the presence of multiple people we cannot rule out herding.
+This could be owing to better information or conformation to the norms <CITE SOMETHING>.
+However, herding would have to be explained differently because it is in a donation/gift setting.
+Crowd-funding is a social network and previous record of entrepreneurs is a key determinant in the success of their projects<Cite>.
+There is also a strong element of reciprocity.
+If one entrepreneur contributes to another persons project, his/her own project is more likely to get funded<Cite>.
+Reciprocity alone cannot explain all results as it is less likely that every contributor is an entrepreneur looking to raise funds.
+Our results indicate that certain words such as mother, son, love, dream, student have an effect on the success, plausibly because they appeal to an emotion or to pity.
 
 \section{Literature}
 
-Mollick (2014) look at the dynamics underlying the success of crowdfunding projects. They show that personal effects, project quality and geography are related to the success of the project. They also find that most projects (75\%) deliver projects later than the promised date.
+Mollick (2014) look at the dynamics underlying the success of crowdfunding projects.
+They show that personal effects, project quality and geography are related to the success of the project.
+They also find that most projects (75%) deliver projects later than the promised date.
 
+Inbar and Basrzilay (2014) find evidence of reciprocity.
+They use data from Kickstarter to show that entrepreneurs who have backed projects earlier are more likely to get funded.
+Using network theory they advise that backing projects is a good strategy that contributes to success of your own project.
+It is possible that they find this relation due to learning.
+If someone backs multiple projects, he/she is likely to have learnt what works and what not.
+If those learnings are incorporated in his/her own projects then the success of that project would reflect confounding effects of network theory and learning by being in the system.
 
-Inbar and Basrzilay (2014) find evidence of reciprocity. They use data from Kickstarter to show that entrepreneurs who have backed projects earlier are more likely to get funded. Using network theory they advise that backing projects is a good strategy that contributes to success of your own project. It is possible that they find this relation due to learning. If someone backs multiple projects, he/she is likely to have learnt what works and what not. If those learnings are incorporated in his/her own projects then the success of that project would reflect confounding effects of network theory and learning by being in the system. 
+Bellaframme, Lambert and Schewienbacher (2014) find that crowdfunding initiatives that are presented as non-profit organisations tend to be more successful at raising funds after controlling for other factors.
+They say that this is in line with contract failure literature that purports that due to reduced focused on projects, NPOs can raise money easily for initiatives in which the general public is interested.
+We extend this literature by looking at the level to which a project can connect with the people.
+<Extend here>
 
+Ahlers et al(2012) examine signals that induce providers of finance to commit to crowdfunding projects.
+They find that financial roadmaps, risk factors and internal governance are key factors that determine the success of a crowdfunding project.
 
-Bellaframme, Lambert and Schewienbacher (2014) find that crowdfunding initiatives that are presented as non-profit organisations tend to be more successful at raising funds after controlling for other factors. They say that this is in line with contract failure literature that purports that due to reduced focused on projects, NPOs can raise money easily for initiatives in which the general public is interested.
-We extend this literature by looking at the level to which a project can connect with the people. <Extend here>
-
-
-Ahlers et al(2012) examine signals that induce providers of finance to commit to crowdfunding projects. They find that financial roadmaps, risk factors and internal governance are key factors that determine the success of a crowdfunding project.
-
-
-Similar but not same is an analysis of Lui (2013) on microloans where he finds that on Prosper.com \footnote{a microloan website} there is herding but it is not irrational herding. Lender make informed decisions after looking at the past record of borrowers and borrowers traits-favourable or not- are amplified.
-
+Similar but not same is an analysis of Lui (2013) on microloans where he finds that on Prosper.com \footnote{a microloan website} there is herding but it is not irrational herding.
+Lender make informed decisions after looking at the past record of borrowers and borrowers traits-favourable or not- are amplified.
 
 \section{Method}
 
 \subsection{Data}
-Our sample includes 171,436 observations. After removing projects for which we do not have complete data, we are left with 150011 observations. Table 1 gives a summary of the data. Our data spans 80 months ranging from April, 2009 to November, 2015. We have data from 16 categories viz. Theatre, Design, Fashion, Technology, Film and Video Games, Publishing, Crafts, Arts, Music, Comics, Food, Photography, Others, Journalism and Dance. The projects have one of four states: cancelled, suspended, failed or successful. Successful and failed are the two dominant categories. The projects on Kickstarter can be from any nation and therefore can pertain to different currencies. Projects in our sample span 10 currencies GBP, USD, CAD, AUD, NZD, NOK, EUR, CHF, DKK and SEK. We use the conversion rate as on December 21, 2015 to convert all amounts into USD.
+
+Our sample includes 171,436 observations.
+After removing projects for which we do not have complete data, we are left with 150,011 observations.
+Table \@ref(tab:datasummary1) gives a summary of the data.
+Our data spans 80 months ranging from April, 2009 to November, 2015.
+We have data from 16 categories viz.
+Theatre, Design, Fashion, Technology, Film and Video Games, Publishing, Crafts, Arts, Music, Comics, Food, Photography, Others, Journalism and Dance.
+The projects have one of four states: cancelled, suspended, failed or successful.
+Successful and failed are the two dominant categories.
+The projects on Kickstarter can be from any nation and therefore can pertain to different currencies.
+Projects in our sample span 10 currencies GBP, USD, CAD, AUD, NZD, NOK, EUR, CHF, DKK and SEK.
+
+```{r datasummary1, echo=FALSE, message=FALSE,results='asis'}
+
+
+stargazer(select(c1,Name, Blurb, Launched_At, Deadline, State, Goal, Pledged, Percentage_Funded, Backers_Count, Became_Overachiever_At, Became_Rising_Star_At, Super_Category,Main_Category.x,Sub_Category)
+,title =  "This tables shows the summary of various columns in our dataset",label = "OverallSummary",header = FALSE) #This is because we will use Age Separately.
+
+
+#Add content on data, how many people, males or females, average of all three answers
+
+##Total number, mean, max, min, 
+
+```
 
 \subsection{Various Steps}
 
 \subsubsection{Timing}
+
 We look at the month in which the project is launched and the relevant impact it has on the probability of success of the project.
 
-\subsubsection{Words}
-We look at words that are most likely to appeal to emotion or pity. In case a particular word is present we assign a dummy of 1 to that particular project. In case more than one such word is present in the project blurb, we add the two. Thus the coefficient on the SumOfWords variable is indicative of the effect of using both the words over and above the effect of any one of those words. We use words such as mother, baby, kids, environment, dream, amputee, accident, death, friend, love etc.\footnote{For a complete list of words that we ran, please refer Annexure <Refer>}. The dependent variable is coded as 1, in case the project is successful and 0 in case the project is not successful. Because of the binary nature of the variable, we use the following logit model:
+```{r monthwise1, echo=FALSE, fig.height=5.5, fig.width=4, message=FALSE, warning=FALSE}
+library(ggplot2)
 
+monthplot1<-c1%>%group_by(month,success)%>%summarise(count=length(month))
+monthplot<-filter(monthplot1,success==1)
+
+monthplot<-monthplot[order(monthplot$count,decreasing=TRUE),]
+plot1<-ggplot(monthplot, aes(x=reorder(month,-count), y=count ))
+plot1<- plot1+ geom_bar(stat = "identity", color="blue", fill="light blue") +
+  xlab("Month") + ylab("Number of Successful projects") + # Set axis labels
+  ggtitle("Number of Successful Projects by Launch Month") + theme(legend.position="top") #+ # Set title #Theme Minimal reduces the gridlines
+#  geom_text(aes(label=d1[5:10,]$freq), vjust=1.5, color="black", size=3.5) #,  group= "success", fill= "yellow"  )
+print(plot1)
+
+```
+
+```{r monthprop1, echo=FALSE, fig.height=5.5, fig.width=4, message=FALSE, warning=FALSE}
+
+monthplot2<-merge(monthplot,filter(monthplot1,success==0),by="month")
+monthplot2$prop<-monthplot2$count.x/monthplot2$count.y
+monthplot2<-monthplot2[order(monthplot2$prop,decreasing=TRUE),]
+monthplot2<-as.data.frame(monthplot2)
+plot2<-ggplot(monthplot2, aes(x=reorder(month,-prop), y=prop ))
+plot2<- plot2+ geom_bar(stat = "identity", color="blue", fill="light blue") +
+  xlab("Month") + ylab("Proportion of Successful to Unsuccessful Projects") + # Set axis labels
+  ggtitle("Proportion of Successful to Unsuccessful Projects by Month") + theme(legend.position="top") #+ #
+print(plot2)
+
+
+```
+
+Figure \@ref(fig:monthwise1) might be slightly misleading as our data is not evenly spread.
+We would be better off looking at the proportion of success to failure.
+In Figure \@ref(fig:monthprop1) we see the proportion of success to failure for each month.
+Month 2 to Month 6 are in the top 5.
+While more than 97 percent projects launched in march are successful, only 59 percent projects are successful in September.
+
+Similar to months, we do this exercise for days.
+\footnote{Friday Effect}.
+
+```{r daywise1, echo=FALSE}
+c1$day<-format(c1$Launched_At,format="%a") #Get Weekday name from date.
+
+dayplot1<-c1%>%group_by(day,success)%>%summarise(count=length(day))
+dayplot<-filter(dayplot1,success==1)
+dayplot2<-merge(dayplot,filter(dayplot1,success==0),by="day")
+dayplot2$prop<-dayplot2$count.x/dayplot2$count.y
+dayplot2<-dayplot2[order(dayplot2$prop,decreasing=TRUE),]
+dayplot2<-as.data.frame(dayplot2)
+plot3<-ggplot(dayplot2, aes(x=reorder(day,-prop), y=prop ))
+plot3<- plot3+ geom_bar(stat = "identity", color="blue", fill="light blue") +
+  xlab("Day") + ylab("Proportion of Successful to Unsuccessful") + # Set axis labels
+  ggtitle("Proportion of Successful to Unsuccessful Projects by Day") + theme(legend.position="top") #+ #
+print(plot3)
+
+
+```
+
+In Figure \@ref(fig:daywise1) we plot the proportion of successful to unsuccessful projects.
+We see that the propotion of success is higher on Sunday as compared to other days of the week, especially Monday.
+We do not see any 'Friday Effect' in this.
+
+```{r Readability1, message=FALSE, warning=FALSE}
+library(quanteda)
+
+library(survival)
+library(koRpus)
+
+##This is the word wizardry
+set.kRp.env(lang="en")
+#get.kRp.env(TT.cmd=TRUE)
+koRpus::install.koRpus.lang("en")
+(library(koRpus.lang.en))
+#dalelist <- read.csv("C:/Users/preet.singh/Downloads/dalelist.txt", sep="")
+#spachelist <- read.table("C:/Users/preet.singh/Downloads/spachelist.txt", sep="", quote="\"", comment.char="")
+ some.text<-tokenize(c1$Blurb[2], format = "obj", lang = "kRp.env") ###This is testing  This works after specifying language.
+  scores<-str(readability(some.text))
+```
+
+
+\footnote{See if you want to do overachievement etc.}
+
+\subsubsection{Words}
+
+findFreqTerms(course_dtm,10000)
+[1] "game" "help" "make" "new"  "will"
+findFreqTerms(course_dtm,5000)
+ [1] "album"   "art"     "book"    "bring"   "can"     "creat"   "design"  "film"    "first"   "game"    "get"     "help"    "life"    "love"    "make"    "music"   "need"    "new"    
+[19] "one"     "project" "record"  "stori"   "time"    "use"     "want"    "will"    "world"   "year" 
+
+findFreqTerms(course_dtm,2000)
+  [1] "adventur"    "album"       "app"         "around"      "art"         "artist"      "back"        "band"        "base"        "beauti"      "best"        "book"       
+ [13] "bring"       "build"       "can"         "card"        "chang"       "children"    "citi"        "collect"     "come"        "comic"       "communiti"   "creat"      
+ [25] "custom"      "day"         "design"      "documentari" "dream"       "experi"      "explor"      "famili"      "featur"      "film"        "find"        "first"      
+ [37] "food"        "free"        "friend"      "full"        "fun"         "fund"        "game"        "get"         "give"        "great"       "hand"        "help"       
+ [49] "high"        "home"        "inspir"      "journey"     "just"        "kid"         "learn"       "let"         "life"        "like"        "live"        "local"      
+ [61] "look"        "love"        "made"        "make"        "man"         "music"       "need"        "new"         "now"         "old"         "one"         "open"       
+ [73] "origin"      "part"        "peopl"       "perform"     "play"        "power"       "print"       "produc"      "product"     "project"     "qualiti"     "rais"       
+ [85] "record"      "releas"      "seri"        "set"         "share"       "short"       "show"        "song"        "space"       "start"       "stori"       "studio"     
+ [97] "style"       "support"     "take"        "time"        "togeth"      "travel"      "tri"         "two"         "uniqu"       "use"         "video"       "want"       
+[109] "way"         "will"        "work"        "world"       "year"        "young"    
+
+We look at words that are most likely to appeal to emotion or pity.
+In case a particular word is present we assign a dummy of 1 to that particular project.
+In case more than one such word is present in the project blurb, we add the two.
+Thus the coefficient on the SumOfWords variable is indicative of the effect of using both the words over and above the effect of any one of those words.
+We use words such as mother, baby, kids, environment, dream, amputee, accident, death, friend, love etc.\footnote{For a complete list of words that we ran, please refer Annexure <Refer>}.
+The dependent variable is coded as 1, in case the project is successful and 0 in case the project is not successful.
+Because of the binary nature of the variable, we use the following logit model:
+
+```{r wordcorrelation, message=FALSE, warning=FALSE}
+cor.test(c1$ma,c1$success)#PRetty Cool
+cor.test(c1$mom,c1$success)#Negative Correlation
+cor.test(c1$mother,c1$success)#No Correlation
+cor.test(c1$cancer,c1$success)#Negative Correlation
+cor.test(c1$kids,c1$success)#
+#c1<-mutate(c1, save=(grepl("save",c1$Blurb,1,0)+0)) #ost of the words are fun
+c1<-mutate(c1, cancer=(grepl("cancer",c1$Blurb,1,0)+0))
+c2<-c1[,24:ncol(c1)]
+c2<-select(c2,-month)
+c2<-select(c2,-day)
+c2<-select(c2,-totalduration)
+cor(c2,method = "pearson", use = "complete.obs") ##,use = "complete.obs"), method = c("pearson", "kendall", "spearman"))
+
+install.packages("PerformanceAnalytics")
+library("PerformanceAnalytics")
+chart.Correlation(c2, histogram=TRUE, pch=19)
+
+library("Hmisc")
+res2 <- rcorr(as.matrix(c2))
+SignificanRelations<-res2$P[1,] ###This is the one that is actually fun.
+SignificanRelations<-as.data.frame(t(SignificanRelations))
+colnames(SignificanRelations)<-"pValue of Correlation"
+
+stargazer(SignificanRelations,summary = FALSE)
+```
+
+
+```{=tex}
 \begin{math}
 $$ Success = \alpha + \beta_{1} Word1 + \beta_{2} Word2 + \beta_{3} SumOfWords +Control+\epsilon    $$
 \end{math}
+```
 
 \subsubsection{Herding}
-We use a relatively simple method to detect herding. We segregate the data based on categories and summarise it by month of the project deadline. As a robustness check we use month of project launch date but our results remain similar. Once summarised, we use a rolling window regression to look at the effect of number of backers in a month on the number of backers in the previous 12 months. We also regress the amount of money pledged in a month on the amount of money pledged in the previous  twelve months. There are 68 cases for regression in each category. We report aggregate results for all the categories. We use the following regressions:
+```{r}
+```
 
+
+```{r}
+```
+
+We use a relatively simple method to detect herding.
+We segregate the data based on categories and summarise it by month of the project deadline.
+As a robustness check we use month of project launch date but our results remain similar.
+Once summarised, we use a rolling window regression to look at the effect of number of backers in a month on the number of backers in the previous 12 months.
+We also regress the amount of money pledged in a month on the amount of money pledged in the previous twelve months.
+There are 68 cases for regression in each category.
+We report aggregate results for all the categories.
+We use the following regressions:
+
+```{=tex}
 \begin{math}
-%	\begin{center}
+%   \begin{center}
 $$ Backers_{13} = \alpha + \beta_{1}Backers_{1-12}+\beta_{2}Control  +\epsilon $$ \\
-$$ Sum_{13} = \alpha + \beta_{1}Sum_{1-12}+\beta_{2}Control +\epsilon $$			
-%	\end{center}
-\end{math}			
-
+$$ Sum_{13} = \alpha + \beta_{1}Sum_{1-12}+\beta_{2}Control +\epsilon $$            
+%   \end{center}
+\end{math}
+```
 \subsubsection{Readability}
-We use 26 different readability tests. It has an impact.
+
+We use 26 different readability tests.
+It has an impact.
 <Put literature here>
+
 \section{Results and Discussion}
-Readability affects the probability of success. 
-Currency also contributes. Maybe due to familiarity. 
-The time for which it is open is also a significant factor. 
-The amount it wishes to raise. 
-The use of certain words in the blurb. 
-Month and category also have a role to play. 
-Herding exists and the money contributed to projects in the previous months is a significant determinant. 
+
+Readability affects the probability of success.
+Currency also contributes.
+Maybe due to familiarity.
+The time for which it is open is also a significant factor.
+The amount it wishes to raise.
+The use of certain words in the blurb.
+Month and category also have a role to play.
+Herding exists and the money contributed to projects in the previous months is a significant determinant.
 
 \section{Conclusion}
 
-In this study we show evidence of herding. Our hypotheses regarding emotion appeal is vindicated even after controlling for multiple factors. Since crowdfunding is in line with donations and appeals to the benevolence rather than to greed, a different lens is needed to look at the motivation of those who pledge money, beyond reciprocity.
+In this study we show evidence of herding.
+Our hypotheses regarding emotion appeal is vindicated even after controlling for multiple factors.
+Since crowdfunding is in line with donations and appeals to the benevolence rather than to greed, a different lens is needed to look at the motivation of those who pledge money, beyond reciprocity.
 Change and all A general time control or something
 
+-   Difference between March and October is very high, in terms of proportion of projects successful to unsuccessful.
+-   Sunday is very high as compared to Monday.
+
+```{=tex}
 \newpage
 \section*{Bibliography}
+```

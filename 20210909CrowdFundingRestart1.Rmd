@@ -1,5 +1,5 @@
 ---
-title: "Emotional Crowdfunding Blurbs Lead to Success (of the campaign at least)"
+title: "Emotional Crowdfunding Blurbs Lead to Success (of the campaign, at least)"
 author: "Dr Preet Deep Singh"
 affiliation: "Invest India"
 date: "09/09/2021"
@@ -9,7 +9,8 @@ output:
     citation_package: natbib
     number_sections: yes
     keep_tex: yes
-abstract: "Using a dataset of 150,011 projects from Kickstarter, we analyse factors that influence the success of a campaign. Results show that goal amount, use of specific words in the blurb, category of project, and duration of the project are statistically significant. We also use readability tests to show that the more the readability of description more the probability of success. Our paper has prescriptive relevance for practitioners "
+abstract: "Using a dataset of 150,011 projects from Kickstarter, we analyse factors that influence the success of a campaign. Results show that goal amount, day of launch, category of project, and duration of the project are statistically significant. We find the use of certain words is correlated (p<0.1) with the success and overachievement of the project. Invoking positive words such as 'please','thanks', 'father', 'together', 'ease','new' etc has a positive effect."
+
 documentclass: "article"
 editor_options: 
   chunk_output_type: console
@@ -94,7 +95,7 @@ c1<-mutate(c1, together=(grepl("together",c1$Blurb,1,0)+0))
 c1<-mutate(c1, every=(grepl("every",c1$Blurb,1,0)+0))
 c1<-mutate(c1, story=(grepl("story",c1$Blurb,1,0)+0))
 c1<-mutate(c1, mom=(grepl("mom ",c1$Blurb,1,0)+0))
-#c1<-mutate(c1, ma=(grepl("ma ",c1$Blurb,1,0)+0)) "MA " or not because ma could lead to master and other words also
+c1<-mutate(c1, ma=(grepl("ma ",c1$Blurb,1,0)+0))# "MA " or not because ma could lead to master and other words also
 c1<-mutate(c1, save=(grepl("save",c1$Blurb,1,0)+0))
 
 #This adds them up so now we have one column that checks for senty words ##This is in case we can classify senty words.
@@ -128,6 +129,8 @@ Through this study we set out to examine a few basic questions:
 -   Impact of certain words on the total funds raised
 
 We use success, overfunding, and take taken to fulfill the objective of the campaign to measure the impact of our variables of interest.
+We follow \@singh2021perception1, \@singh2021perception3 and \@singh2021perception2 to see how perception of certain traits about the founders matters.
+Similar to that we look at the perception of the audience to the project based on the use of certain words.
 
 ```{=tex}
 \subsection{About Crowdfunding}
@@ -199,16 +202,8 @@ Lender make informed decisions after looking at the past record of borrowers and
 
 \subsection{Data}
 
-Our sample includes 171,436 observations.
-After removing projects for which we do not have complete data, we are left with 150,011 observations.
-Table \@ref(tab:datasummary1) gives a summary of the data.
-Our data spans 80 months ranging from April, 2009 to November, 2015.
-We have data from 16 categories viz.
-Theatre, Design, Fashion, Technology, Film and Video Games, Publishing, Crafts, Arts, Music, Comics, Food, Photography, Others, Journalism and Dance.
-The projects have one of four states: cancelled, suspended, failed or successful.
-Successful and failed are the two dominant categories.
-The projects on Kickstarter can be from any nation and therefore can pertain to different currencies.
-Projects in our sample span 10 currencies GBP, USD, CAD, AUD, NZD, NOK, EUR, CHF, DKK and SEK.
+Our sample includes 171,436 observations.After removing projects for which we do not have complete data, we are left with 150,011 observations.
+
 
 ```{r datasummary1, echo=FALSE, message=FALSE,results='asis'}
 
@@ -222,7 +217,14 @@ stargazer(select(c1,Name, Blurb, Launched_At, Deadline, State, Goal, Pledged, Pe
 ##Total number, mean, max, min, 
 
 ```
-
+Table \@ref(tab:datasummary1)  \@ref(tab:OverallSummary) gives a summary of the data.
+Our data spans 80 months ranging from April, 2009 to November, 2015.
+We have data from 16 categories viz.
+Theatre, Design, Fashion, Technology, Film and Video Games, Publishing, Crafts, Arts, Music, Comics, Food, Photography, Others, Journalism and Dance.
+The projects have one of four states: cancelled, suspended, failed or successful.
+Successful and failed are the two dominant categories.
+The projects on Kickstarter can be from any nation and therefore can pertain to different currencies.
+Projects in our sample span 10 currencies GBP, USD, CAD, AUD, NZD, NOK, EUR, CHF, DKK and SEK.
 \subsection{Various Steps}
 
 \subsubsection{Timing}
@@ -307,7 +309,6 @@ print(plot4)
 
 ```
 
-
 ```{r Readability1, message=FALSE, warning=FALSE, include=FALSE}
 # library(quanteda) #Some issue with RCPP
 
@@ -325,28 +326,24 @@ some.text<-tokenize(c1$Blurb[2], format = "obj", lang = "kRp.env") ###This is te
 scores<-str(readability(some.text))
 ```
 
-
 \footnote{See if you want to do overachievement etc.}
 
 \subsubsection{Words}
 
-findFreqTerms(course_dtm,10000)
-[1] "game" "help" "make" "new"  "will"
-findFreqTerms(course_dtm,5000)
- [1] "album"   "art"     "book"    "bring"   "can"     "creat"   "design"  "film"    "first"   "game"    "get"     "help"    "life"    "love"    "make"    "music"   "need"    "new"    
-[19] "one"     "project" "record"  "stori"   "time"    "use"     "want"    "will"    "world"   "year" 
+findFreqTerms(course_dtm,10000) [1] "game" "help" "make" "new" "will" findFreqTerms(course_dtm,5000) [1] "album" "art" "book" "bring" "can" "creat" "design" "film" "first" "game" "get" "help" "life" "love" "make" "music" "need" "new"\
+[19] "one" "project" "record" "stori" "time" "use" "want" "will" "world" "year"
 
-findFreqTerms(course_dtm,2000)
-  [1] "adventur"    "album"       "app"         "around"      "art"         "artist"      "back"        "band"        "base"        "beauti"      "best"        "book"       
- [13] "bring"       "build"       "can"         "card"        "chang"       "children"    "citi"        "collect"     "come"        "comic"       "communiti"   "creat"      
- [25] "custom"      "day"         "design"      "documentari" "dream"       "experi"      "explor"      "famili"      "featur"      "film"        "find"        "first"      
- [37] "food"        "free"        "friend"      "full"        "fun"         "fund"        "game"        "get"         "give"        "great"       "hand"        "help"       
- [49] "high"        "home"        "inspir"      "journey"     "just"        "kid"         "learn"       "let"         "life"        "like"        "live"        "local"      
- [61] "look"        "love"        "made"        "make"        "man"         "music"       "need"        "new"         "now"         "old"         "one"         "open"       
- [73] "origin"      "part"        "peopl"       "perform"     "play"        "power"       "print"       "produc"      "product"     "project"     "qualiti"     "rais"       
- [85] "record"      "releas"      "seri"        "set"         "share"       "short"       "show"        "song"        "space"       "start"       "stori"       "studio"     
- [97] "style"       "support"     "take"        "time"        "togeth"      "travel"      "tri"         "two"         "uniqu"       "use"         "video"       "want"       
-[109] "way"         "will"        "work"        "world"       "year"        "young"    
+findFreqTerms(course_dtm,2000) [1] "adventur" "album" "app" "around" "art" "artist" "back" "band" "base" "beauti" "best" "book"\
+[13] "bring" "build" "can" "card" "chang" "children" "citi" "collect" "come" "comic" "communiti" "creat"\
+[25] "custom" "day" "design" "documentari" "dream" "experi" "explor" "famili" "featur" "film" "find" "first"\
+[37] "food" "free" "friend" "full" "fun" "fund" "game" "get" "give" "great" "hand" "help"\
+[49] "high" "home" "inspir" "journey" "just" "kid" "learn" "let" "life" "like" "live" "local"\
+[61] "look" "love" "made" "make" "man" "music" "need" "new" "now" "old" "one" "open"\
+[73] "origin" "part" "peopl" "perform" "play" "power" "print" "produc" "product" "project" "qualiti" "rais"\
+[85] "record" "releas" "seri" "set" "share" "short" "show" "song" "space" "start" "stori" "studio"\
+[97] "style" "support" "take" "time" "togeth" "travel" "tri" "two" "uniqu" "use" "video" "want"\
+[109] "way" "will" "work" "world" "year"
+"young"
 
 We look at words that are most likely to appeal to emotion or pity.
 In case a particular word is present we assign a dummy of 1 to that particular project.
@@ -356,10 +353,10 @@ We use words such as mother, baby, kids, environment, dream, amputee, accident, 
 The dependent variable is coded as 1, in case the project is successful and 0 in case the project is not successful.
 Because of the binary nature of the variable, we use the following logit model:
 
-
 We use a definition of 125% for overachievement.
-```{r wordcorrelation, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 
+```{r wordcorrelation, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+library(dplyr)
 #c1<-mutate(c1, save=(grepl("save",c1$Blurb,1,0)+0)) #ost of the words are fun
 c1<-mutate(c1, cancer=(grepl("cancer",c1$Blurb,1,0)+0))
 c1<-mutate(c1, fear=(grepl("fear",c1$Blurb,1,0)+0))
@@ -384,6 +381,14 @@ c1<-mutate(c1, est=(grepl("est ",c1$Blurb,1,0)+0))
 c1<-mutate(c1, worst=(grepl("worst",c1$Blurb,1,0)+0))
 c1<-mutate(c1, best=(grepl("best ",c1$Blurb,1,0)+0))
 c1<-mutate(c1, prevent=(grepl("prevent",c1$Blurb,1,0)+0))
+c1<-mutate(c1, technology=(grepl("technology",c1$Blurb,1,0)+0))
+c1<-mutate(c1, comfort=(grepl("comfort",c1$Blurb,1,0)+0))
+c1<-mutate(c1, new=(grepl("new",c1$Blurb,1,0)+0))
+c1<-mutate(c1, smart=(grepl("smart",c1$Blurb,1,0)+0))
+c1<-mutate(c1, ease=(grepl("ease",c1$Blurb,1,0)+0))
+c1<-mutate(c1, simple=(grepl("simple",c1$Blurb,1,0)+0))
+c1<-mutate(c1, accessible=(grepl("accessible",c1$Blurb,1,0)+0))
+#c1<-mutate(c1, madad=c1$ma*c1$dad)
 
 
 
@@ -414,17 +419,103 @@ cortable<-round(cortable,2)
 stargazer(cortable,summary = FALSE, title =  "This tables shows the coefficient of correlation and p value, between projects that used the particular word and their success.",label = "CorrelationTable",header = FALSE)
 ```
 
+```{r regressionsuccess, echo=FALSE, message=FALSE, warning=FALSE}
+reg1<-glm(c1$success~c1$ease+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg2<-glm(c1$success~c1$father+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg3<-glm(c1$success~c1$please+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg4<-glm(c1$success~c1$thank+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg5<-glm(c1$success~c1$every+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg6<-glm(c1$success~c1$never+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg7<-glm(c1$success~c1$best+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg8<-glm(c1$success~c1$est+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg9<-glm(c1$success~c1$child+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg10<-glm(c1$success~c1$dream+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg11<-glm(c1$success~c1$ma+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg12<-glm(c1$success~c1$dad+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg13<-glm(c1$success~c1$poor+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg14<-glm(c1$success~c1$support+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg15<-glm(c1$success~c1$forgive+ c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+library(stargazer)
+stargazer(reg1,reg2,reg3, title="Regression results for use of particular words and success.",align=TRUE, dep.var.labels=c("Ease","Father","Please"),
+         omit=c("day","Month","Super_Category"),
+         omit.labels=c("Day","Month","Super_Category")
+         )
+
+stargazer(reg4,reg5,reg6, title="Regression results for use of particular words and success.",align=TRUE, dep.var.labels=c("Thank","Every","Never"),
+         omit=c("day","Month","Super_Category"),
+         omit.labels=c("Day","Month","Super_Category")
+         )
+
+stargazer(reg7,reg8,reg9, title="Regression results for use of particular words and success.",align=TRUE, dep.var.labels=c("Best","Superlative","Child"),
+         omit=c("day","Month","Super_Category"),
+         omit.labels=c("Day","Month","Super_Category")
+         )
+
+stargazer(reg10,reg11,reg12, title="Regression results for use of particular words and success.",align=TRUE, dep.var.labels=c("Dream","Ma","Dad"),
+         omit=c("day","Month","Super_Category"),
+         omit.labels=c("Day","Month","Super_Category")
+         )
+
+stargazer(reg13,reg14,reg15, title="Regression results for use of particular words and success.",align=TRUE, dep.var.labels=c("Poor","Forgive","Support"),
+         omit=c("day","Month","Super_Category"),
+         omit.labels=c("Day","Month","Super_Category")
+         )
+
+```
+
+```{r regressionover, echo=FALSE, message=FALSE, warning=FALSE}
+reg1<-glm(c1$over~c1$ease+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg2<-glm(c1$over~c1$father+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg3<-glm(c1$over~c1$please+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg4<-glm(c1$over~c1$thank+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg5<-glm(c1$over~c1$every+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg6<-glm(c1$over~c1$never+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg7<-glm(c1$over~c1$best+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg8<-glm(c1$over~c1$est+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg9<-glm(c1$over~c1$child+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg10<-glm(c1$over~c1$dream+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg11<-glm(c1$over~c1$ma+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg12<-glm(c1$over~c1$dad+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg13<-glm(c1$over~c1$poor+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg14<-glm(c1$over~c1$support+ c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg15<-glm(c1$over~c1$forgive+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+library(stargazer)
+stargazer(reg1,reg2,reg3, title="Regression results for use of particular words and over-funding.",align=TRUE, dep.var.labels=c("Ease","Father","Please"),
+         omit=c("day","Month","Super_Category"),
+         omit.labels=c("Day","Month","Super_Category")
+         )
+
+stargazer(reg4,reg5,reg6, title="Regression results for use of particular words and over-funding.",align=TRUE, dep.var.labels=c("Thank","Every","Never"),
+         omit=c("day","Month","Super_Category"),
+         omit.labels=c("Day","Month","Super_Category")
+         )
+
+stargazer(reg7,reg8,reg9, title="Regression results for use of particular words and over-funding.",align=TRUE, dep.var.labels=c("Best","Superlative","Child"),
+         omit=c("day","Month","Super_Category"),
+         omit.labels=c("Day","Month","Super_Category")
+         )
+
+stargazer(reg10,reg11,reg12, title="Regression results for use of particular words and over-funding.",align=TRUE, dep.var.labels=c("Dream","Ma","Dad"),
+         omit=c("day","Month","Super_Category"),
+         omit.labels=c("Day","Month","Super_Category")
+         )
+
+stargazer(reg13,reg14,reg15, title="Regression results for use of particular words and over-funding.",align=TRUE, dep.var.labels=c("Poor","Forgive","Support"),
+         omit=c("day","Month","Super_Category"),
+         omit.labels=c("Day","Month","Super_Category")
+         )
+```
+
 
 ```{=tex}
 \begin{math}
 $$ Success = \alpha + \beta_{1} Word1 + \beta_{2} Word2 + \beta_{3} SumOfWords +Control+\epsilon    $$
 \end{math}
 ```
-
 \subsubsection{Herding}
+
 ```{r}
 ```
-
 
 ```{r}
 ```
@@ -472,14 +563,16 @@ Change and all A general time control or something
 
 -   Difference between March and October is very high, in terms of proportion of projects successful to unsuccessful.
 -   Sunday is very high as compared to Monday.
+-   
 
-Correlation
+### Correlation
+
 -   Mother/Mom: no, Ma: yes, but Ma has a mildly positive effect
 -   Dad/Pap: no, Father: yes but mildly positive
 -   Thank/Please: Positive
 -   Baby/Poor/Dream/Child/Kids/every/save/cancer: negative
--   Love/student/together/story/fear/support: positive
--   Superlatives (est) help (Positive)
+-   Love/student/together/story/fear/support: positive - Superlatives (est) help (Positive)
 -   Best and Prevent: Negative
 -   Worst: not significant
-
+-   Technology/Smart/Simple: no
+-   Ease/new: yes

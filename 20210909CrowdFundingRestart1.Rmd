@@ -309,7 +309,7 @@ print(plot4)
 
 ```
 
-```{r Readability1, message=FALSE, warning=FALSE, include=FALSE}
+```{r Readability1, message=FALSE, warning=FALSE, include=FALSE,echo=FALSE}
 # library(quanteda) #Some issue with RCPP
 
 library(survival)
@@ -419,7 +419,7 @@ cortable<-round(cortable,2)
 stargazer(cortable,summary = FALSE, title =  "This tables shows the coefficient of correlation and p value, between projects that used the particular word and their success.",label = "CorrelationTable",header = FALSE)
 ```
 
-```{r regressionsuccess, echo=FALSE, message=FALSE, warning=FALSE}
+```{r regressionsuccess, echo=FALSE, message=FALSE, warning=FALSE,results='asis'}
 reg1<-glm(c1$success~c1$ease+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
 reg2<-glm(c1$success~c1$father+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
 reg3<-glm(c1$success~c1$please+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')

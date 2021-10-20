@@ -22,7 +22,7 @@ csl: apa.csl
 ---
 
 ```{r setup, message=TRUE, warning=TRUE, include=FALSE}
-knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo=FALSE)
 library(tidyverse)
 library(ARTofR)
 library(survival)
@@ -204,20 +204,18 @@ Lender make informed decisions after looking at the past record of borrowers and
 
 Our sample includes 171,436 observations.After removing projects for which we do not have complete data, we are left with 150,011 observations.
 
-
+Table \@ref(tab:OverallSummary) and \@ref(tab:datasummary1) gives a summary of the data.
 ```{r datasummary1, echo=FALSE, message=FALSE,results='asis'}
 
 
 stargazer(select(c1,Name, Blurb, Launched_At, Deadline, State, Goal, Pledged, Percentage_Funded, Backers_Count, Became_Overachiever_At, Became_Rising_Star_At, Super_Category,Main_Category.x,Sub_Category)
-,title =  "This tables shows the summary of various columns in our dataset",label = "OverallSummary",header = FALSE) #This is because we will use Age Separately.
+,title =  "This tables shows the summary of various columns in our dataset",label = "OverallSummary",header = FALSE, font.size = "small") #This is because we will use Age Separately.
 
 
 #Add content on data, how many people, males or females, average of all three answers
 
-##Total number, mean, max, min, 
-
 ```
-Table \@ref(tab:datasummary1)  \@ref(tab:OverallSummary) gives a summary of the data.
+
 Our data spans 80 months ranging from April, 2009 to November, 2015.
 We have data from 16 categories viz.
 Theatre, Design, Fashion, Technology, Film and Video Games, Publishing, Crafts, Arts, Music, Comics, Food, Photography, Others, Journalism and Dance.
@@ -231,7 +229,7 @@ Projects in our sample span 10 currencies GBP, USD, CAD, AUD, NZD, NOK, EUR, CHF
 
 We look at the month in which the project is launched and the relevant impact it has on the probability of success of the project.
 
-```{r monthwise1, echo=FALSE, message=FALSE, warning=FALSE}
+```{r monthwise1, fig.cap="\\label{fig:monthwise1}Proportion of Successful to Unsuccessful Projects by Month",echo=FALSE, message=FALSE, warning=FALSE}
 library(ggplot2)
 
 monthplot1<-c1%>%group_by(month,success)%>%summarise(count=length(month))
@@ -247,7 +245,7 @@ print(plot1)
 
 ```
 
-```{r monthprop1, echo=FALSE, message=FALSE, warning=FALSE}
+```{r monthprop1, fig.cap="\\label{fig:monthprop2}Proportion of Successful to Unsuccessful Projects by Month", echo=FALSE, message=FALSE, warning=FALSE}
 
 monthplot2<-merge(monthplot,filter(monthplot1,success==0),by="month")
 monthplot2$prop<-monthplot2$count.x/monthplot2$count.y
@@ -271,7 +269,7 @@ While the ratio of successful to unsuccessful projects is more than 97 percent f
 Similar to months, we do this exercise for days.
 \footnote{Friday Effect}.
 
-```{r daywise1, echo=FALSE}
+```{r daywise1,fig.cap="\\label{fig:daywise1}Proportion of Successful to Unsuccessful Projects by Day", echo=FALSE}
 c1$day<-format(c1$Launched_At,format="%a") #Get Weekday name from date.
 
 dayplot1<-c1%>%group_by(day,success)%>%summarise(count=length(day))
@@ -289,11 +287,11 @@ print(plot3)
 
 ```
 
-In Figure \@ref(fig:daywise1) we plot the proportion of successful to unsuccessful projects.
+In Figure \@ref(fig:daywise1)we plot the proportion of successful to unsuccessful projects.
 We see that the propotion of success is higher on Sunday as compared to other days of the week, especially Monday.
 We do not see any 'Friday Effect' in this.
 
-```{r categorywise1, echo=FALSE, message=FALSE, warning=FALSE}
+```{r categorywise1, fig.cap="\\label{fig:categorywise1}Proportion of Successful to Unsuccessful Projects by Category",echo=FALSE, message=FALSE, warning=FALSE}
 catplot1<-c1%>%group_by(Super_Category,success)%>%summarise(count=length(Super_Category))
 catplot<-filter(catplot1,success==1)
 catplot2<-merge(catplot,filter(catplot1,success==0),by="Super_Category")
@@ -303,7 +301,7 @@ catplot2<-as.data.frame(catplot2)
 plot4<-ggplot(catplot2, aes(x=reorder(Super_Category,-prop), y=prop ))
 plot4<- plot4+ geom_bar(stat = "identity", color="blue", fill="light blue") +
   xlab("Category") + ylab("Proportion of Successful to Unsuccessful") + # Set axis labels
-  ggtitle("Proportion of Successful to Unsuccessful Projects by Category") + theme(legend.position="top") #+ #
+  ggtitle("Proportion of Successful to Unsuccessful Projects by Category") + theme(legend.position="top",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) #+ #
 print(plot4)
 
 
@@ -312,25 +310,26 @@ print(plot4)
 ```{r Readability1, message=FALSE, warning=FALSE, include=FALSE,echo=FALSE}
 # library(quanteda) #Some issue with RCPP
 
-library(survival)
-library(koRpus)
+#library(survival)
+#library(koRpus)
 #koRpus::install.koRpus.lang("en")
-(library(koRpus.lang.en))
+#   (library(koRpus.lang.en))
 ##This is the word wizardry
-set.kRp.env(lang="en")
+#  set.kRp.env(lang="en")
 #get.kRp.env(TT.cmd=TRUE)
 
 #dalelist <- read.csv("C:/Users/preet.singh/Downloads/dalelist.txt", sep="")
-#spachelist <- read.table("C:/Users/preet.singh/Downloads/spachelist.txt", sep="", quote="\"", comment.char="")
-some.text<-tokenize(c1$Blurb[2], format = "obj", lang = "kRp.env") ###This is testing  This works after specifying language.
-scores<-str(readability(some.text))
+#spachelist <- read.table("C:/Users/preet.singh/Downloads/spachelist.txt", sep="", quote="\"", comment.char="")#
+#   some.text<-tokenize(c1$Blurb[2], format = "obj", lang = "kRp.env") ###This is testing  This works after specifying language.
+#scores<-str(readability(some.text))
 ```
 
-\footnote{See if you want to do overachievement etc.}
+Something\footnote{See if you want to do overachievement etc.}
 
 \subsubsection{Words}
 
-findFreqTerms(course_dtm,10000) [1] "game" "help" "make" "new" "will" findFreqTerms(course_dtm,5000) [1] "album" "art" "book" "bring" "can" "creat" "design" "film" "first" "game" "get" "help" "life" "love" "make" "music" "need" "new"\
+findFreqTerms(course_dtm,10000) [1] "game" "help" "make" "new" "will" 
+findFreqTerms(course_dtm,5000) [1] "album" "art" "book" "bring" "can" "creat" "design" "film" "first" "game" "get" "help" "life" "love" "make" "music" "need" "new"\
 [19] "one" "project" "record" "stori" "time" "use" "want" "will" "world" "year"
 
 findFreqTerms(course_dtm,2000) [1] "adventur" "album" "app" "around" "art" "artist" "back" "band" "base" "beauti" "best" "book"\
@@ -419,91 +418,94 @@ cortable<-round(cortable,2)
 stargazer(cortable,summary = FALSE, title =  "This tables shows the coefficient of correlation and p value, between projects that used the particular word and their success.",label = "CorrelationTable",header = FALSE)
 ```
 
+
 ```{r regressionsuccess, echo=FALSE, message=FALSE, warning=FALSE,results='asis'}
+#c1$SuperCategory<-c1$Super_Category
+c1$Super_Category<-ifelse(c1$Super_Category=="Film & Video", "Film and Video",c1$Super_Category)
 reg1<-glm(c1$success~c1$ease+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
 reg2<-glm(c1$success~c1$father+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg3<-glm(c1$success~c1$please+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg3<-glm(c1$success~c1$please+c1$lngoal+c1$totalduration +c1$month+c1$day+c1$Super_Category , family = 'binomial')
 reg4<-glm(c1$success~c1$thank+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
 reg5<-glm(c1$success~c1$every+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg6<-glm(c1$success~c1$never+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg7<-glm(c1$success~c1$best+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg6<-glm(c1$success~c1$never+c1$lngoal+c1$totalduration +c1$month+c1$day+c1$Super_Category , family = 'binomial')
+reg7<-glm(c1$success~c1$best+c1$lngoal+c1$totalduration +c1$month+c1$day+c1$Super_Category , family = 'binomial')
 reg8<-glm(c1$success~c1$est+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
 reg9<-glm(c1$success~c1$child+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg10<-glm(c1$success~c1$dream+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+reg10<-glm(c1$success~c1$dream+c1$lngoal+c1$totalduration +c1$month+c1$day+c1$Super_Category , family = 'binomial')
 reg11<-glm(c1$success~c1$ma+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
 reg12<-glm(c1$success~c1$dad+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
 reg13<-glm(c1$success~c1$poor+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
 reg14<-glm(c1$success~c1$support+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
 reg15<-glm(c1$success~c1$forgive+ c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
 library(stargazer)
-stargazer(reg1,reg2,reg3, title="Regression results for use of particular words and success.",align=TRUE, dep.var.labels=c("Ease","Father","Please"),
-         omit=c("day","Month","Super_Category"),
-         omit.labels=c("Day","Month","Super_Category")
-         )
+stargazer(reg1,reg2,reg3, title="Regression results for use of particular words and success.",header=FALSE,
+         omit=c("month","day","Super_Category"),
+         omit.labels=c("Month","Day","Super Category") 
+        )
 
-stargazer(reg4,reg5,reg6, title="Regression results for use of particular words and success.",align=TRUE, dep.var.labels=c("Thank","Every","Never"),
-         omit=c("day","Month","Super_Category"),
-         omit.labels=c("Day","Month","Super_Category")
-         )
+stargazer(reg4,reg5,reg6, title="Regression results for use of particular words and success.",header=FALSE,
+         omit=c("month","day","Super_Category"),
+         omit.labels=c("Month","Day","Super Category") 
+        )
 
-stargazer(reg7,reg8,reg9, title="Regression results for use of particular words and success.",align=TRUE, dep.var.labels=c("Best","Superlative","Child"),
-         omit=c("day","Month","Super_Category"),
-         omit.labels=c("Day","Month","Super_Category")
-         )
+stargazer(reg7,reg8,reg9, title="Regression results for use of particular words and success.",header=FALSE, 
+         omit=c("month","day","Super_Category"),
+         omit.labels=c("Month","Day","Super Category") 
+        )
 
-stargazer(reg10,reg11,reg12, title="Regression results for use of particular words and success.",align=TRUE, dep.var.labels=c("Dream","Ma","Dad"),
-         omit=c("day","Month","Super_Category"),
-         omit.labels=c("Day","Month","Super_Category")
-         )
+stargazer(reg10,reg11,reg12, title="Regression results for use of particular words and success.",header=FALSE, 
+         omit=c("month","day","Super_Category"),
+         omit.labels=c("Month","Day","Super Category") 
+        )
 
-stargazer(reg13,reg14,reg15, title="Regression results for use of particular words and success.",align=TRUE, dep.var.labels=c("Poor","Forgive","Support"),
-         omit=c("day","Month","Super_Category"),
-         omit.labels=c("Day","Month","Super_Category")
-         )
+stargazer(reg13,reg14,reg15, title="Regression results for use of particular words and success.",header=FALSE, 
+         omit=c("month","day","Super_Category"),
+         omit.labels=c("Month","Day","Super Category") 
+        )
 
 ```
 
-```{r regressionover, echo=FALSE, message=FALSE, warning=FALSE}
-reg1<-glm(c1$over~c1$ease+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg2<-glm(c1$over~c1$father+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg3<-glm(c1$over~c1$please+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg4<-glm(c1$over~c1$thank+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg5<-glm(c1$over~c1$every+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg6<-glm(c1$over~c1$never+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg7<-glm(c1$over~c1$best+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg8<-glm(c1$over~c1$est+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg9<-glm(c1$over~c1$child+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg10<-glm(c1$over~c1$dream+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg11<-glm(c1$over~c1$ma+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg12<-glm(c1$over~c1$dad+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg13<-glm(c1$over~c1$poor+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg14<-glm(c1$over~c1$support+ c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg15<-glm(c1$over~c1$forgive+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
+```{r regressionover, echo=FALSE, message=FALSE, warning=FALSE,results='asis'}
+reg1<-glm(c1$over~c1$ease+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
+reg2<-glm(c1$over~c1$father+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
+reg3<-glm(c1$over~c1$please+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
+reg4<-glm(c1$over~c1$thank+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
+reg5<-glm(c1$over~c1$every+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
+reg6<-glm(c1$over~c1$never+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
+reg7<-glm(c1$over~c1$best+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
+reg8<-glm(c1$over~c1$est+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
+reg9<-glm(c1$over~c1$child+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
+reg10<-glm(c1$over~c1$dream+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
+reg11<-glm(c1$over~c1$ma+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
+reg12<-glm(c1$over~c1$dad+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
+reg13<-glm(c1$over~c1$poor+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
+reg14<-glm(c1$over~c1$support+ c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
+reg15<-glm(c1$over~c1$forgive+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
 library(stargazer)
-stargazer(reg1,reg2,reg3, title="Regression results for use of particular words and over-funding.",align=TRUE, dep.var.labels=c("Ease","Father","Please"),
-         omit=c("day","Month","Super_Category"),
-         omit.labels=c("Day","Month","Super_Category")
-         )
+stargazer(reg1,reg2,reg3, title="Regression results for use of particular words and over-funding.",header=FALSE, 
+         omit=c("month","day","Super_Category"),
+         omit.labels=c("Month","Day","Super Category") 
+        )
 
-stargazer(reg4,reg5,reg6, title="Regression results for use of particular words and over-funding.",align=TRUE, dep.var.labels=c("Thank","Every","Never"),
-         omit=c("day","Month","Super_Category"),
-         omit.labels=c("Day","Month","Super_Category")
-         )
+stargazer(reg4,reg5,reg6, title="Regression results for use of particular words and over-funding.",header=FALSE, 
+         omit=c("month","day","Super_Category"),
+         omit.labels=c("Month","Day","Super Category") 
+        )
 
-stargazer(reg7,reg8,reg9, title="Regression results for use of particular words and over-funding.",align=TRUE, dep.var.labels=c("Best","Superlative","Child"),
-         omit=c("day","Month","Super_Category"),
-         omit.labels=c("Day","Month","Super_Category")
-         )
+stargazer(reg7,reg8,reg9, title="Regression results for use of particular words and over-funding.",header=FALSE, 
+         omit=c("month","day","Super_Category"),
+         omit.labels=c("Month","Day","Super Category") 
+        )
 
-stargazer(reg10,reg11,reg12, title="Regression results for use of particular words and over-funding.",align=TRUE, dep.var.labels=c("Dream","Ma","Dad"),
-         omit=c("day","Month","Super_Category"),
-         omit.labels=c("Day","Month","Super_Category")
-         )
+stargazer(reg10,reg11,reg12, title="Regression results for use of particular words and over-funding.",header=FALSE, 
+         omit=c("month","day","Super_Category"),
+         omit.labels=c("Month","Day","Super Category") 
+        )
 
-stargazer(reg13,reg14,reg15, title="Regression results for use of particular words and over-funding.",align=TRUE, dep.var.labels=c("Poor","Forgive","Support"),
-         omit=c("day","Month","Super_Category"),
-         omit.labels=c("Day","Month","Super_Category")
-         )
+stargazer(reg13,reg14,reg15, title="Regression results for use of particular words and over-funding.",header=FALSE, 
+         omit=c("month","day","Super_Category"),
+         omit.labels=c("Month","Day","Super Category") 
+        )
 ```
 
 

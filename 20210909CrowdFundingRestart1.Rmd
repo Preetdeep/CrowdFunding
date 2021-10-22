@@ -9,7 +9,7 @@ output:
     citation_package: natbib
     number_sections: yes
     keep_tex: yes
-abstract: "Using a dataset of 150,011 projects from Kickstarter, we analyse factors that influence the success of a campaign. Results show that goal amount, day of launch, category of project, and duration of the project are statistically significant. We find the use of certain words is correlated (p<0.1) with the success and overachievement of the project. Invoking positive words such as 'please','thanks', 'father', 'together', 'ease','new' etc has a positive effect."
+abstract: "Using a dataset of 150,011 projects from Kickstarter, we analyse factors that influence the success of a campaign. Projects launched in March, on a Sunday mentioning positive words are most likely to get funded. Results show that goal amount, day of launch, category of project, and duration of the project are statistically significant. We find the use of certain words is correlated (p<0.1) with the success and overachievement of the project. Invoking positive words such as 'please','thanks', 'father', 'together', 'ease','new' has a positive effect."
 
 documentclass: "article"
 editor_options: 
@@ -74,34 +74,6 @@ c1$Percentage_Funded<-as.numeric(gsub("%","",c1$Percentage_Funded))
 c1<-subset(c1,c1$Backers_Count>0) # We are removing projects that dont have a single backer, which means it either never went live or there was a different issue.
 ## This leads to sample going down to 150011
 
-xxx_title2("Fun Bit")
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-##                                   Fun Bit                                ----
-##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#Check for senty words
-c1<-mutate(c1, baby=(grepl("baby",c1$Blurb,1,0)+0))
-c1<-mutate(c1, mother=(grepl("mother",c1$Blurb,1,0)+0))
-c1<-mutate(c1, poor=(grepl("poor",c1$Blurb,1,0)+0))
-c1<-mutate(c1, love=(grepl("love",c1$Blurb,1,0)+0))
-c1<-mutate(c1, enviro=(grepl("environment",c1$Blurb,1,0)+0))
-c1<-mutate(c1, student=(grepl("student",c1$Blurb,1,0)+0))
-c1<-mutate(c1, amputee=(grepl("amputee",c1$Blurb,1,0)+0))
-c1<-mutate(c1, dream=(grepl("dream",c1$Blurb,1,0)+0))
-c1<-mutate(c1, lost=(grepl("lost",c1$Blurb,1,0)+0))
-c1<-mutate(c1, child=(grepl("child",c1$Blurb,1,0)+0))
-c1<-mutate(c1, kids=(grepl("kids",c1$Blurb,1,0)+0))
-c1<-mutate(c1, disease=(grepl("disease",c1$Blurb,1,0)+0))
-c1<-mutate(c1, together=(grepl("together",c1$Blurb,1,0)+0))
-c1<-mutate(c1, every=(grepl("every",c1$Blurb,1,0)+0))
-c1<-mutate(c1, story=(grepl("story",c1$Blurb,1,0)+0))
-c1<-mutate(c1, mom=(grepl("mom ",c1$Blurb,1,0)+0))
-c1<-mutate(c1, ma=(grepl("ma ",c1$Blurb,1,0)+0))# "MA " or not because ma could lead to master and other words also
-c1<-mutate(c1, save=(grepl("save",c1$Blurb,1,0)+0))
-
-#This adds them up so now we have one column that checks for senty words ##This is in case we can classify senty words.
-c1<-mutate(c1,sum1=student+story+lost+save)
-c1<-mutate(c1,sum2=every+poor+dream+love)
-c1<-mutate(c1,sum3=kids+child+mother+baby)
 
 
 c1<-mutate(c1,lngoal=log(Goal))
@@ -118,6 +90,8 @@ c1<-as.data.frame(c1) ##This is to ensure that this is not a tibble. Leads to pr
 
 \section{Introduction}
 
+Data from Kickstarter shows that over half of the projects listed are not successful. This makes the study of factors that contribute to success very relevant. Crowdfunding platforms are used for a host of reasons. On Kickstarter, as per our data, there are over 15 categories ranging from Dance to Technology. A number of small initiatives and startups raise money through this route. 
+
 While traditional finance theories such as pecking order theory, predict that firms would raise debt before equity <Check Once>, the new era of companies based on new market segments and product offerings that cannot be compared to those existing, has led to a new paradigm of looking at risk and its distribution.
 While over 80% of startups fail \footnote{CITE}, crowd-funding is changing the way risky enterprises are being financed.
 Through this study we set out to examine a few basic questions:
@@ -128,14 +102,14 @@ Through this study we set out to examine a few basic questions:
 
 -   Impact of certain words on the total funds raised
 
-We use success, overfunding, and take taken to fulfill the objective of the campaign to measure the impact of our variables of interest.
+We use success of the campaign to measure the impact of our variables of interest.
 We follow \@singh2021perception1, \@singh2021perception3 and \@singh2021perception2 to see how perception of certain traits about the founders matters.
 Similar to that we look at the perception of the audience to the project based on the use of certain words.
 
-```{=tex}
+
 \subsection{About Crowdfunding}
 \subsubsection{Previously}
-```
+
 4 types of crowd funding - Reward, Debt, Equity, Donation.
 In India SEBI has not allowed investors to go the equity route to invest in startups.
 This is because of the inherent problems in inviting public to subscribe to the shares of the company <Cite Companies Act>.
@@ -144,14 +118,14 @@ Therefore if the organisation raising funds is an entity covered under the relev
 Under the reward base, the investor is promised the product.
 Thus this method works as a pre-order facility.
 While the company is assured of a minimum sale and gets cash to keep it going, the investor gets a right to get his/her hands on a product before it hits the market.
-\<<You can cite some of many examples available here>.
+<You can cite some of many examples available here>.
 Debt based model is difficult to execute on a platform only mode and therefore requires more interaction between the organisation and the the creditor.
 However debt is an important part of funding and risk disbursement.
 
 \subsection{About Kickstarter}
-
+TO BE ADDED
 What it is, when it was founded, how much money has it already disbursed.
-This will come from the Data stats that it itself shows.
+
 
 \subsection{About the study}
 
@@ -169,7 +143,7 @@ Because of the presence of multiple people we cannot rule out herding.
 This could be owing to better information or conformation to the norms <CITE SOMETHING>.
 However, herding would have to be explained differently because it is in a donation/gift setting.
 Crowd-funding is a social network and previous record of entrepreneurs is a key determinant in the success of their projects<Cite>.
-There is also a strong element of reciprocity.
+There is also a strong element of reciprocity. (Cite)
 If one entrepreneur contributes to another persons project, his/her own project is more likely to get funded<Cite>.
 Reciprocity alone cannot explain all results as it is less likely that every contributor is an entrepreneur looking to raise funds.
 Our results indicate that certain words such as mother, son, love, dream, student have an effect on the success, plausibly because they appeal to an emotion or to pity.
@@ -227,9 +201,80 @@ Projects in our sample span 10 currencies GBP, USD, CAD, AUD, NZD, NOK, EUR, CHF
 
 \subsubsection{Timing}
 
-We look at the month in which the project is launched and the relevant impact it has on the probability of success of the project.
+In Figure \@ref(alldate1) we see that while the number of new projects launched everyday varies to a large extent, it has increased since launch.
 
-```{r monthwise1, fig.cap="\\label{fig:monthwise1}Proportion of Successful to Unsuccessful Projects by Month",echo=FALSE, message=FALSE, warning=FALSE}
+```{r alldate1,fig.cap="\\label{fig:alldate1}Number of projects launched by date",echo=FALSE, message=FALSE, warning=FALSE}
+
+c2success<-c1%>%group_by(Launched_At,success)%>%summarise(count=length(Launched_At))
+c2all<-c1%>%group_by(Launched_At)%>%summarise(count=length(Launched_At))
+plot5<-ggplot(c2all,aes(x=Launched_At,y=count))+geom_line(stat="identity") + xlab("Date") + ylab("Number of Projects Launched") + # Set axis labels
+  ggtitle("Number of daily projects launched") + theme(legend.position="top")
+print(plot5)
+```
+
+```{r alldate2,fig.cap="\\label{fig:alldate2}Proportion of successful projects by date",echo=FALSE, message=FALSE, warning=FALSE}
+
+colnames(c2all)<-c("Date","TotalProjects")
+c2success<-c1%>%group_by(Launched_At,success)%>%summarise(count=length(Launched_At))%>%filter(success==1)
+colnames(c2success)<-c("Date","Success","SuccessfulProjects")
+c2successall<-merge(c2success,c2all,all.y = TRUE,by="Date")
+c2successall$SuccessRatio<-c2successall$SuccessfulProjects/c2successall$TotalProjects
+plot5<-ggplot(c2successall,aes(x=Date,y=SuccessRatio))+geom_line(stat="identity" ) + xlab("Date") + ylab("Proportion of Successful Projects") + # Set axis labels
+  ggtitle("Proportion of successful projects by launch date") + theme(legend.position="top")
+print(plot5)
+```
+
+
+
+We look at month wise success ratios by dividing the total number of successful projects by the total number of projects launched in a particular month. In fig \@ref(monthwisesuccess1) we look at the ratio of successful projects for each month. We see that the overall ratio for any month is less than 0.5. This study gains importance in light of this information. We see that October has the lowest ratio of successful projects. We filter the dataset by currency and replicate the results for each currency and see a very similar pattern for USD nd other currencies. October is the lowest for a number of currencies. The number of bars might not be 12 in some currencies because of the distribution of data.
+
+```{r monthwisesuccess1, fig.cap="\\label{fig:monthwisesuccess1}Proportion of Successful Projects by Month",echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+
+monthplot2<-c1%>%group_by(month)%>%summarise(count=length(month))
+
+monthplot1<-c1%>%group_by(month,success)%>%summarise(count=length(month))
+monthplot<-filter(monthplot1,success==1)
+monthplot<-merge(monthplot,monthplot2,by="month")
+colnames(monthplot)<-c("Month","Success","SuccessfulProjects","TotalProjects")
+monthplot$SuccessRatio<-monthplot$SuccessfulProjects/monthplot$TotalProjects
+
+monthplot<-monthplot[order(monthplot$SuccessRatio,decreasing=TRUE),]
+plot1<-ggplot(monthplot, aes(x=reorder(Month,-SuccessRatio), y=SuccessRatio ))
+plot1<- plot1+ geom_bar(stat = "identity", color="blue", fill="light blue") +
+  xlab("Month") + ylab("Proportion of Successful projects") + # Set axis labels
+  ggtitle("Ratio of Successful Projects by Launch Month") + theme(legend.position="top") #+ # Set title #Theme Minimal reduces the gridlines
+#  geom_text(aes(label=d1[5:10,]$freq), vjust=1.5, color="black", size=3.5) #,  group= "success", fill= "yellow"  )
+print(plot1)
+
+```
+
+```{r monthwisesuccessus2, fig.cap="\\label{fig:monthwisesuccessus2}Proportion of Successful Projects by Month",echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+
+for (i in (1:length(unique(c1$Currency)))){
+c1us<-filter(c1,Currency==unique(c1$Currency)[i])
+monthplot2<-c1us%>%group_by(month)%>%summarise(count=length(month))
+
+monthplot1<-c1us%>%group_by(month,success)%>%summarise(count=length(month))
+monthplot<-filter(monthplot1,success==1)
+monthplot<-merge(monthplot,monthplot2,by="month")
+colnames(monthplot)<-c("Month","Success","SuccessfulProjects","TotalProjects")
+monthplot$SuccessRatio<-monthplot$SuccessfulProjects/monthplot$TotalProjects
+
+monthplot<-monthplot[order(monthplot$SuccessRatio,decreasing=TRUE),]
+plot1<-ggplot(monthplot, aes(x=reorder(Month,-SuccessRatio), y=SuccessRatio ))
+plot1<- plot1+ geom_bar(stat = "identity", color="blue", fill="light blue") +
+  xlab("Month") + ylab("Proportion of Successful projects")  + # Set axis labels
+  ggtitle(paste("Ratio of Successful Projects by Launch Month for",unique(c1$Currency)[i])) + theme(legend.position="top") #+ # Set title #Theme Minimal reduces the gridlines
+#  geom_text(aes(label=d1[5:10,]$freq), vjust=1.5, color="black", size=3.5) #,  group= "success", fill= "yellow"  )
+print(plot1)
+}
+
+```
+
+
+```{r monthwise1, eval=FALSE, fig.cap="\\label{fig:monthwise1}Proportion of Successful to Unsuccessful Projects by Month", message=FALSE, warning=FALSE, include=FALSE}
 library(ggplot2)
 
 monthplot1<-c1%>%group_by(month,success)%>%summarise(count=length(month))
@@ -245,7 +290,7 @@ print(plot1)
 
 ```
 
-```{r monthprop1, fig.cap="\\label{fig:monthprop2}Proportion of Successful to Unsuccessful Projects by Month", echo=FALSE, message=FALSE, warning=FALSE}
+```{r monthprop1,eval=FALSE, fig.cap="\\label{fig:monthprop2}Proportion of Successful to Unsuccessful Projects by Month", echo=FALSE, message=FALSE, warning=FALSE}
 
 monthplot2<-merge(monthplot,filter(monthplot1,success==0),by="month")
 monthplot2$prop<-monthplot2$count.x/monthplot2$count.y
@@ -260,52 +305,78 @@ print(plot2)
 
 ```
 
-Figure \@ref(fig:monthwise1) might be slightly misleading as our data is not evenly spread.
-We would be better off looking at the proportion of success to failure.
-In Figure \@ref(fig:monthprop1) we see the proportion of success to failure for each month.
-Month 2 to Month 6 are in the top 5.
-While the ratio of successful to unsuccessful projects is more than 97 percent for projects launched in march are successful, it is 59 percent projects are successful in September.
-
 Similar to months, we do this exercise for days.
 \footnote{Friday Effect}.
 
 ```{r daywise1,fig.cap="\\label{fig:daywise1}Proportion of Successful to Unsuccessful Projects by Day", echo=FALSE}
-c1$day<-format(c1$Launched_At,format="%a") #Get Weekday name from date.
 
+c1$day<-format(c1$Launched_At,format="%a") #Get Weekday name from date.
+dayplot2<-c1%>%group_by(day)%>%summarise(count=length(day))
 dayplot1<-c1%>%group_by(day,success)%>%summarise(count=length(day))
-dayplot<-filter(dayplot1,success==1)
-dayplot2<-merge(dayplot,filter(dayplot1,success==0),by="day")
-dayplot2$prop<-dayplot2$count.x/dayplot2$count.y
-dayplot2<-dayplot2[order(dayplot2$prop,decreasing=TRUE),]
-dayplot2<-as.data.frame(dayplot2)
-plot3<-ggplot(dayplot2, aes(x=reorder(day,-prop), y=prop ))
+dayplot1<-filter(dayplot1,success==1)
+dayplot<-merge(dayplot1,dayplot2,by="day")
+colnames(dayplot)<-c("Day","Success","SuccessfulProjects","TotalProjects")
+
+dayplot$SuccessRatio<-dayplot$SuccessfulProjects/dayplot$TotalProjects
+dayplot<-dayplot[order(dayplot$SuccessRatio,decreasing=TRUE),]
+dayplot<-as.data.frame(dayplot)
+plot3<-ggplot(dayplot, aes(x=reorder(Day,-SuccessRatio), y=SuccessRatio ))
 plot3<- plot3+ geom_bar(stat = "identity", color="blue", fill="light blue") +
   xlab("Day") + ylab("Proportion of Successful to Unsuccessful") + # Set axis labels
   ggtitle("Proportion of Successful to Unsuccessful Projects by Day") + theme(legend.position="top") #+ #
 print(plot3)
 
-
 ```
 
-In Figure \@ref(fig:daywise1)we plot the proportion of successful to unsuccessful projects.
-We see that the propotion of success is higher on Sunday as compared to other days of the week, especially Monday.
+```{r daywise2,fig.cap="\\label{fig:daywise2}Proportion of Successful to Unsuccessful Projects by Day", echo=FALSE}
+
+c1$day<-format(c1$Launched_At,format="%a") #Get Weekday name from date.
+
+
+for(i in 1:length(unique(c1$Currency))){
+  c1us<-filter(c1,Currency==unique(c1$Currency)[i])
+dayplot2<-c1us%>%group_by(day)%>%summarise(count=length(day))
+dayplot1<-c1us%>%group_by(day,success)%>%summarise(count=length(day))
+dayplot1<-filter(dayplot1,success==1)
+dayplot<-merge(dayplot1,dayplot2,by="day")
+colnames(dayplot)<-c("Day","Success","SuccessfulProjects","TotalProjects")
+
+dayplot$SuccessRatio<-dayplot$SuccessfulProjects/dayplot$TotalProjects
+dayplot<-dayplot[order(dayplot$SuccessRatio,decreasing=TRUE),]
+dayplot<-as.data.frame(dayplot)
+plot3<-ggplot(dayplot, aes(x=reorder(Day,-SuccessRatio), y=SuccessRatio ))
+plot3<- plot3+ geom_bar(stat = "identity", color="blue", fill="light blue") +
+  xlab("Day") + ylab("Proportion of Successful Projects") + # Set axis labels
+  ggtitle(paste("Proportion of Successful Projects by Day for",unique(c1$Currency)[i])) + theme(legend.position="top") #+ #
+print(plot3)
+}
+```
+
+
+In Figure \@ref(fig:daywise1)we plot the proportion of successful projects. We see that Sundays are especially better. We replicate this chart for different currencies and find that except DKK representing Danish Kroner, Sunday is the best day to launch a project across jurisdictions. In Netherlands, Saturdays seem to be the best. 
+
 We do not see any 'Friday Effect' in this.
 
 ```{r categorywise1, fig.cap="\\label{fig:categorywise1}Proportion of Successful to Unsuccessful Projects by Category",echo=FALSE, message=FALSE, warning=FALSE}
+
+catplot2<-c1%>%group_by(Super_Category)%>%summarise(count=length(Super_Category))
 catplot1<-c1%>%group_by(Super_Category,success)%>%summarise(count=length(Super_Category))
 catplot<-filter(catplot1,success==1)
-catplot2<-merge(catplot,filter(catplot1,success==0),by="Super_Category")
-catplot2$prop<-catplot2$count.x/catplot2$count.y
-catplot2<-catplot2[order(catplot2$prop,decreasing=TRUE),]
-catplot2<-as.data.frame(catplot2)
-plot4<-ggplot(catplot2, aes(x=reorder(Super_Category,-prop), y=prop ))
+catplot<-merge(catplot,catplot2,by="Super_Category")
+colnames(catplot)<-c("Category","Success","SuccessfulProjects","TotalProjects")
+catplot$SuccessRatio<-catplot$SuccessfulProjects/catplot$TotalProjects
+
+catplot<-catplot[order(catplot$SuccessRatio,decreasing=TRUE),]
+catplot<-as.data.frame(catplot)
+plot4<-ggplot(catplot, aes(x=reorder(Category,-SuccessRatio), y=SuccessRatio ))
 plot4<- plot4+ geom_bar(stat = "identity", color="blue", fill="light blue") +
-  xlab("Category") + ylab("Proportion of Successful to Unsuccessful") + # Set axis labels
+  xlab("Category") + ylab("Proportion of Successful Projects") + # Set axis labels
   ggtitle("Proportion of Successful to Unsuccessful Projects by Category") + theme(legend.position="top",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) #+ #
 print(plot4)
 
-
 ```
+
+
 
 ```{r Readability1, message=FALSE, warning=FALSE, include=FALSE,echo=FALSE}
 # library(quanteda) #Some issue with RCPP
@@ -354,9 +425,39 @@ Because of the binary nature of the variable, we use the following logit model:
 
 We use a definition of 125% for overachievement.
 
-```{r wordcorrelation, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+```{r wordcorrelation, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE, results='asis'}
 library(dplyr)
 #c1<-mutate(c1, save=(grepl("save",c1$Blurb,1,0)+0)) #ost of the words are fun
+
+xxx_title2("Fun Bit")
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##                                   Fun Bit                                ----
+##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#Check for senty words
+c1<-mutate(c1, baby=(grepl("baby",c1$Blurb,1,0)+0))
+c1<-mutate(c1, mother=(grepl("mother",c1$Blurb,1,0)+0))
+c1<-mutate(c1, poor=(grepl("poor",c1$Blurb,1,0)+0))
+c1<-mutate(c1, love=(grepl("love",c1$Blurb,1,0)+0))
+c1<-mutate(c1, enviro=(grepl("environment",c1$Blurb,1,0)+0))
+c1<-mutate(c1, student=(grepl("student",c1$Blurb,1,0)+0))
+c1<-mutate(c1, amputee=(grepl("amputee",c1$Blurb,1,0)+0))
+c1<-mutate(c1, dream=(grepl("dream",c1$Blurb,1,0)+0))
+c1<-mutate(c1, lost=(grepl("lost",c1$Blurb,1,0)+0))
+c1<-mutate(c1, child=(grepl("child",c1$Blurb,1,0)+0))
+c1<-mutate(c1, kids=(grepl("kids",c1$Blurb,1,0)+0))
+c1<-mutate(c1, disease=(grepl("disease",c1$Blurb,1,0)+0))
+c1<-mutate(c1, together=(grepl("together",c1$Blurb,1,0)+0))
+c1<-mutate(c1, every=(grepl("every",c1$Blurb,1,0)+0))
+c1<-mutate(c1, story=(grepl("story",c1$Blurb,1,0)+0))
+c1<-mutate(c1, mom=(grepl("mom ",c1$Blurb,1,0)+0))
+c1<-mutate(c1, ma=(grepl("ma ",c1$Blurb,1,0)+0))# "MA " or not because ma could lead to master and other words also
+c1<-mutate(c1, save=(grepl("save",c1$Blurb,1,0)+0))
+
+#This adds them up so now we have one column that checks for senty words ##This is in case we can classify senty words.
+c1<-mutate(c1,sum1=student+story+lost+save)
+c1<-mutate(c1,sum2=every+poor+dream+love)
+c1<-mutate(c1,sum3=kids+child+mother+baby)
+
 c1<-mutate(c1, cancer=(grepl("cancer",c1$Blurb,1,0)+0))
 c1<-mutate(c1, fear=(grepl("fear",c1$Blurb,1,0)+0))
 c1<-mutate(c1, overcome=(grepl("overcome",c1$Blurb,1,0)+0))
@@ -415,11 +516,56 @@ cortable<-cbind(Correlations,SignificanRelations)
 cortable<-round(cortable,2)
 
 
-stargazer(cortable,summary = FALSE, title =  "This tables shows the coefficient of correlation and p value, between projects that used the particular word and their success.",label = "CorrelationTable",header = FALSE)
+stargazer(cortable,summary = FALSE, title =  "This tables shows the coefficient of correlation and p value, between projects that used the particular word and their success.",label = "CorrelationTable",header = FALSE,no.space=TRUE,font.size = "small")
+knitr::kable(cortable) #See if this works
+```
+
+In Table \@ref(tab:RegTable11) we list the effect of each word based on a regression run on the success of the project while controlling for the day of week, month of the year, project duration and the total amount to be raised. 
+In Table \@ref(tab:RegTable21) we list the effect of each word based on a regression run on the overachievement of the project while controlling for the day of week, month of the year, project duration and the total amount to be raised. 
+```{r regressionsuccesstry1, echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE, results='asis'}
+wordlist<-c("baby","mother","ma ","mom ","father","pa ","papa","dad","parent","close ","friend","brother","sister","sibling","grandparent","grandchild","son","daughter","love","please","happy","thank","story","save","child","every","together","we"," us "," our ","mine","never","dead","die ","infect","pain","suffer","cancer","disease","amputee","enviro","homosexual","gay","fear","overcome","dear","most","best","worst","est ","smart","techn","ease","new","convenience","prevent","hunger","accessible","support")
+
+
+regtable<-data.frame()
+for (i in 1:length(wordlist)){
+  c1<- mutate(c1, moving=(grepl(wordlist[i],c1$Blurb,1,0)+0))
+ regtable[i,1]<-wordlist[i]
+  reg1<-glm(success~moving+lngoal+totalduration+month+day+Super_Category, data= c1, family = 'binomial')
+ regtable[i,2]<-summary(reg1)$coefficients[2]  #This is the coefficient for our variable of interest
+ regtable[i,3]<-coef(summary(reg1))[,'Pr(>|z|)'][2]  #This is the p value
+ }
+colnames(regtable)<-c("Word","Coefficient","Pvalue")
+#monthplot<-monthplot[order(monthplot$SuccessRatio,decreasing=TRUE),]
+regtable<-regtable[order(regtable$Pvalue,decreasing = FALSE),]
+regtable11<-filter(regtable,Pvalue<0.1)
+regtable12<-filter(regtable,Pvalue>0.1)
+stargazer(regtable11,font.size = "small",summary = FALSE,title = "This table shows the results for regression of the words on Success and their p-values for words that have a statistically significant effect.",header = FALSE, label = "RegTable11" ,no.space=TRUE)
+stargazer(regtable12,font.size = "small",summary = FALSE,title = "This table shows the results for regression of the words on Success and their p-values for words that do not have a statistically significant effect.",header = FALSE, label = "RegTable12",no.space=TRUE )
+```
+
+```{r regressionovertry1, echo=FALSE, message=FALSE, warning=FALSE,results='asis'}
+
+regtable2<-data.frame()
+for (i in 1:length(wordlist)){
+  c1<- mutate(c1, moving=(grepl(wordlist[i],c1$Blurb,1,0)+0))
+ regtable2[i,1]<-wordlist[i]
+  reg1<-glm(success~moving+lngoal+totalduration+month+day+Super_Category, data= c1, family = 'binomial')
+ regtable2[i,2]<-summary(reg1)$coefficients[2]  #This is the coefficient for our variable of interest
+ regtable2[i,3]<-coef(summary(reg1))[,'Pr(>|z|)'][2]  #This is the p value
+ }
+colnames(regtable2)<-c("Word","Coefficient","Pvalue")
+
+
+regtable2<-regtable2[order(regtable2$Pvalue,decreasing = FALSE),]
+regtable21<-filter(regtable2,Pvalue<0.1)
+regtable22<-filter(regtable2,Pvalue>0.1)
+stargazer(regtable21,font.size = "small",summary = FALSE,title = "This table shows the results for regression of the words on Overachievement and their p-values for words that have a statistically significant effect.",header = FALSE,label = "RegTable21" )
+stargazer(regtable22,font.size = "small",summary = FALSE,title = "This table shows the results for regression of the words on Overachievement and their p-values for words that do not have a statistically significant effect.",header = FALSE,label = "RegTable22" )
+knitr::kable(regtable22,caption = "This table shows the results for regression of the words on Overachievement and their p-values for words that do not have a statistically significant effect.")
 ```
 
 
-```{r regressionsuccess, echo=FALSE, message=FALSE, warning=FALSE,results='asis'}
+```{r regressionsuccess, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, results='asis'}
 #c1$SuperCategory<-c1$Super_Category
 c1$Super_Category<-ifelse(c1$Super_Category=="Film & Video", "Film and Video",c1$Super_Category)
 reg1<-glm(c1$success~c1$ease+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')

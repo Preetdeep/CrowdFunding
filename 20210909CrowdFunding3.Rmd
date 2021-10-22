@@ -195,12 +195,12 @@ Currency data for some projects is not mentioned and is represented as NULL.
 
 \subsection{Timing}
 
-In Figure \@ref(alldate1) we see that while the number of new projects launched everyday varies to a large extent, it has increased since launch.
+In Figure \@ref(fig:alldate1) we see that while the number of new projects launched everyday varies to a large extent, it has increased since launch.
 In Figure \@ref(fig:alldate2) we see the ratio of successful projects.
 It seems to drop after the number of projects increased.
 This would make sense because as more projects come in, not all will be successful.
 
-```{r alldate1,fig.cap="\\label{fig:alldate1}Number of projects launched by date",echo=FALSE, message=FALSE, warning=FALSE}
+```{r alldate1,fig.cap="\\label{fig:alldates1}Number of projects launched by date",echo=FALSE, message=FALSE, warning=FALSE}
 
 c2success<-c1%>%group_by(Launched_At,success)%>%summarise(count=length(Launched_At))
 c2all<-c1%>%group_by(Launched_At)%>%summarise(count=length(Launched_At))
@@ -209,7 +209,7 @@ plot5<-ggplot(c2all,aes(x=Launched_At,y=count))+geom_line(stat="identity") + xla
 print(plot5)
 ```
 
-```{r alldate2,fig.cap="\\label{fig:alldate2}Proportion of successful projects by date",echo=FALSE, message=FALSE, warning=FALSE}
+```{r alldate2,fig.cap="\\label{fig:alldates2}Proportion of successful projects by date",echo=FALSE, message=FALSE, warning=FALSE}
 
 colnames(c2all)<-c("Date","TotalProjects")
 c2success<-c1%>%group_by(Launched_At,success)%>%summarise(count=length(Launched_At))%>%filter(success==1)
@@ -222,7 +222,7 @@ print(plot5)
 ```
 
 We look at month wise success ratios by dividing the total number of successful projects by the total number of projects launched in a particular month.
-In fig \@ref(monthwisesuccess1) we look at the ratio of successful projects for each month.
+In fig \@ref(fig:monthwisesuccess1) we look at the ratio of successful projects for each month.
 We see that the overall ratio for all months is less than 0.5.
 This study gains importance in light of this information.
 We see that October has the lowest ratio of successful projects.
@@ -230,7 +230,7 @@ We filter the data by currency and replicate the results for each currency and s
 October is the lowest for a number of currencies.
 The number of bars might not be 12 in some currencies because of the distribution of data.
 
-```{r monthwisesuccess1, fig.cap="\\label{fig:monthwisesuccess1}Proportion of Successful Projects by Month",echo=FALSE, message=FALSE, warning=FALSE}
+```{r monthwisesuccess1, fig.cap="\\label{fig:monthwisesuccess1s}Proportion of Successful Projects by Month",echo=FALSE, message=FALSE, warning=FALSE}
 library(ggplot2)
 
 monthplot2<-c1%>%group_by(month)%>%summarise(count=length(month))
@@ -309,7 +309,7 @@ print(plot2)
 Similar to months, we do this exercise for days.
 \footnote{Friday Effect}.
 
-```{r daywise1,fig.cap="\\label{fig:daywise1}Proportion of Successful to Unsuccessful Projects by Day", echo=FALSE}
+```{r daywise1,fig.cap="\\label{fig:daywises1}Proportion of Successful to Unsuccessful Projects by Day", echo=FALSE}
 
 c1$day<-format(c1$Launched_At,format="%a") #Get Weekday name from date.
 dayplot2<-c1%>%group_by(day)%>%summarise(count=length(day))
@@ -353,7 +353,7 @@ print(plot3)
 }
 ```
 
-In Figure \@ref(fig:daywise1) we plot the proportion of successful projects.
+In Figure \@ref(fig:daywise2) we plot the proportion of successful projects.
 We see that Sundays are especially better.
 We replicate this chart for different currencies and find that except DKK (Danish Kroner) and NOK (Norwegian Krone), Sunday is the best day to launch a project across jurisdictions.
 In Netherlands, Saturdays seem to be the best.
@@ -403,26 +403,15 @@ Below is a list of words that appear at least 10000 times in the blurbs across p
 "game" "help" "make" "new" "will"
 
 Below is a list of words that appear at least 5000 times in the blurbs across projects.
+
 "album" "art" "book" "bring" "can" "creat" "design" "film" "first" "game" "get" "help" "life" "love" "make" "music" "need" "new"\
 "one" "project" "record" "stori" "time" "use" "want" "will" "world" "year"
-
-findFreqTerms(course_dtm,2000) [1] "adventur" "album" "app" "around" "art" "artist" "back" "band" "base" "beauti" "best" "book"\
-[13] "bring" "build" "can" "card" "chang" "children" "citi" "collect" "come" "comic" "communiti" "creat"\
-[25] "custom" "day" "design" "documentari" "dream" "experi" "explor" "famili" "featur" "film" "find" "first"\
-[37] "food" "free" "friend" "full" "fun" "fund" "game" "get" "give" "great" "hand" "help"\
-[49] "high" "home" "inspir" "journey" "just" "kid" "learn" "let" "life" "like" "live" "local"\
-[61] "look" "love" "made" "make" "man" "music" "need" "new" "now" "old" "one" "open"\
-[73] "origin" "part" "peopl" "perform" "play" "power" "print" "produc" "product" "project" "qualiti" "rais"\
-[85] "record" "releas" "seri" "set" "share" "short" "show" "song" "space" "start" "stori" "studio"\
-[97] "style" "support" "take" "time" "togeth" "travel" "tri" "two" "uniqu" "use" "video" "want"\
-[109] "way" "will" "work" "world" "year"
-"young"
 
 We look at words that are most likely to appeal to emotion or pity.
 In case a particular word is present we assign a dummy of 1 to that particular project.
 In case more than one such word is present in the project blurb, we add the two.
 Thus the coefficient on the SumOfWords variable is indicative of the effect of using both the words over and above the effect of any one of those words.
-We use words such as mother, baby, kids, environment, dream, amputee, accident, death, friend, love etc.\footnote{For a complete list of words that we ran, please refer Annexure <Refer>}.
+We use words such as mother, baby, kids, environment, dream, amputee, accident, death, friend, love etc.
 The dependent variable is coded as 1, in case the project is successful and 0 in case the project is not successful.
 Because of the binary nature of the variable, we use the following logit model:
 
@@ -527,7 +516,8 @@ stargazer(cortable,summary = FALSE, title =  "This tables shows the coefficient 
 We look at the regression coefficients of selected words while controlling for project amount, day, month and total duration of the project.
 
 ``` {.tex}
-$ Success = \alpha + \beta_{1} Word1 + \beta_{2} LnGoal + \beta_{3} Month  + \beta_{4} Day  + \beta_{5} Category + \beta_{6} TotalDuration +\epsilon $
+$ Success = \alpha + \beta_{1} Word1 + \beta_{2} LnGoal + \beta_{3} Month  + \beta_{4} Day  +
+\beta_{5} Category + \beta_{6} TotalDuration +\epsilon $
 ```
 
 In Table \@ref(tab:RegTable11) we list the effect of each word based on a regression run on the success of the project while controlling for the day of week, month of the year, project duration and the total amount to be raised filtered by statistical significance.
@@ -574,120 +564,6 @@ stargazer(regtable21,font.size = "small",summary = FALSE,title = "This table sho
 stargazer(regtable22,font.size = "small",summary = FALSE,title = "This table shows the results for regression of the words on Overachievement and their p-values for words that do not have a statistically significant effect.",header = FALSE,label = "RegTable22" )
 #knitr::kable(regtable22,caption = "This table shows the results for regression of the words on Overachievement and their p-values for words that do not have a statistically significant effect.") #Not needed now that we have two tables.
 ```
-
-```{r regressionsuccess, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, results='asis'}
-#c1$SuperCategory<-c1$Super_Category
-c1$Super_Category<-ifelse(c1$Super_Category=="Film & Video", "Film and Video",c1$Super_Category)
-reg1<-glm(c1$success~c1$ease+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg2<-glm(c1$success~c1$father+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg3<-glm(c1$success~c1$please+c1$lngoal+c1$totalduration +c1$month+c1$day+c1$Super_Category , family = 'binomial')
-reg4<-glm(c1$success~c1$thank+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg5<-glm(c1$success~c1$every+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg6<-glm(c1$success~c1$never+c1$lngoal+c1$totalduration +c1$month+c1$day+c1$Super_Category , family = 'binomial')
-reg7<-glm(c1$success~c1$best+c1$lngoal+c1$totalduration +c1$month+c1$day+c1$Super_Category , family = 'binomial')
-reg8<-glm(c1$success~c1$est+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg9<-glm(c1$success~c1$child+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg10<-glm(c1$success~c1$dream+c1$lngoal+c1$totalduration +c1$month+c1$day+c1$Super_Category , family = 'binomial')
-reg11<-glm(c1$success~c1$ma+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg12<-glm(c1$success~c1$dad+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg13<-glm(c1$success~c1$poor+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg14<-glm(c1$success~c1$support+c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-reg15<-glm(c1$success~c1$forgive+ c1$lngoal+c1$totalduration +c1$month+c1$day +c1$Super_Category, family = 'binomial')
-library(stargazer)
-stargazer(reg1,reg2,reg3, title="Regression results for use of particular words and success.",header=FALSE,
-         omit=c("month","day","Super_Category"),
-         omit.labels=c("Month","Day","Super Category") 
-        )
-
-stargazer(reg4,reg5,reg6, title="Regression results for use of particular words and success.",header=FALSE,
-         omit=c("month","day","Super_Category"),
-         omit.labels=c("Month","Day","Super Category") 
-        )
-
-stargazer(reg7,reg8,reg9, title="Regression results for use of particular words and success.",header=FALSE, 
-         omit=c("month","day","Super_Category"),
-         omit.labels=c("Month","Day","Super Category") 
-        )
-
-stargazer(reg10,reg11,reg12, title="Regression results for use of particular words and success.",header=FALSE, 
-         omit=c("month","day","Super_Category"),
-         omit.labels=c("Month","Day","Super Category") 
-        )
-
-stargazer(reg13,reg14,reg15, title="Regression results for use of particular words and success.",header=FALSE, 
-         omit=c("month","day","Super_Category"),
-         omit.labels=c("Month","Day","Super Category") 
-        )
-
-```
-
-```{r regressionover, echo=FALSE, message=FALSE, warning=FALSE,results='asis'}
-reg1<-glm(c1$over~c1$ease+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-reg2<-glm(c1$over~c1$father+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-reg3<-glm(c1$over~c1$please+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-reg4<-glm(c1$over~c1$thank+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-reg5<-glm(c1$over~c1$every+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-reg6<-glm(c1$over~c1$never+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-reg7<-glm(c1$over~c1$best+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-reg8<-glm(c1$over~c1$est+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-reg9<-glm(c1$over~c1$child+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-reg10<-glm(c1$over~c1$dream+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-reg11<-glm(c1$over~c1$ma+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-reg12<-glm(c1$over~c1$dad+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-reg13<-glm(c1$over~c1$poor+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-reg14<-glm(c1$over~c1$support+ c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-reg15<-glm(c1$over~c1$forgive+c1$lngoal+c1$totalduration +c1$month+c1$day , family = 'binomial')
-library(stargazer)
-stargazer(reg1,reg2,reg3, title="Regression results for use of particular words and over-funding.",header=FALSE, 
-         omit=c("month","day","Super_Category"),
-         omit.labels=c("Month","Day","Super Category") 
-        )
-
-stargazer(reg4,reg5,reg6, title="Regression results for use of particular words and over-funding.",header=FALSE, 
-         omit=c("month","day","Super_Category"),
-         omit.labels=c("Month","Day","Super Category") 
-        )
-
-stargazer(reg7,reg8,reg9, title="Regression results for use of particular words and over-funding.",header=FALSE, 
-         omit=c("month","day","Super_Category"),
-         omit.labels=c("Month","Day","Super Category") 
-        )
-
-stargazer(reg10,reg11,reg12, title="Regression results for use of particular words and over-funding.",header=FALSE, 
-         omit=c("month","day","Super_Category"),
-         omit.labels=c("Month","Day","Super Category") 
-        )
-
-stargazer(reg13,reg14,reg15, title="Regression results for use of particular words and over-funding.",header=FALSE, 
-         omit=c("month","day","Super_Category"),
-         omit.labels=c("Month","Day","Super Category") 
-        )
-```
-
-\subsection{Herding}
-
-We use a relatively simple method to detect herding.
-We segregate the data based on categories and summarise it by month of the project deadline.
-As a robustness check we use month of project launch date but our results remain similar.
-Once summarised, we use a rolling window regression to look at the effect of number of backers in a month on the number of backers in the previous 12 months.
-We also regress the amount of money pledged in a month on the amount of money pledged in the previous twelve months.
-There are 68 cases for regression in each category.
-We report aggregate results for all the categories.
-We use the following regressions:
-
-```{=tex}
-\begin{math}
-%   \begin{center}
-$$ Backers_{13} = \alpha + \beta_{1}Backers_{1-12}+\beta_{2}Control  +\epsilon $$ \\
-$$ Sum_{13} = \alpha + \beta_{1}Sum_{1-12}+\beta_{2}Control +\epsilon $$            
-%   \end{center}
-\end{math}
-```
-TO BE DONE.
-
-\subsubsection{Readability}
-
-TO BE ADDED.
 
 \section{Results and Discussion}
 
